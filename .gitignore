@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+**/.venv/
+**/.venv_*/
+
+# Node / frontend
+node_modules/
+**/node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# IDE and local runtime files
+.idea/
+.vscode/
+.codex-runtime/
+.agents/
+logs/
+*.log
+*.sqlite
+*.sqlite3
+get-pip.py
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*access_token*
+*secret*
+*credential*
+*.pem
+*.p12
+*.pfx
+
+# Data, training outputs, and large ML artifacts
+dataset/
+羊肚菌/
+code/
+agri_uav_disease_system/backend/app/static/original/
+agri_uav_disease_system/backend/app/static/result/
+agri_uav_disease_system/backend/app/static/experimental/
+agri_uav_disease_system/backend/app/static/uav/
+agri_uav_disease_system/backend/storage/experimental/
+ai_model_training/datasets/
+ai_model_training/datasets_external/
+ai_model_training/raw_datasets/
+ai_model_training/runs/
+ai_model_training/reports/
+ai_model_training/experiments/
+ai_model_training/experiments/**/runs/
+ai_model_training/experiments/**/train.csv
+ai_model_training/experiments/**/val.csv
+ai_model_training/experiments/**/.venv*/
+ai_model_training/model_delivery/
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+*.ckpt
+*.weights
+
+# Archives and generated packages
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+# OS files
+.DS_Store
+Thumbs.db

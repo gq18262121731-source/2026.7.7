@@ -1,0 +1,5 @@
+[
+  {"question_id": "q_blb_001", "expected_keywords": ["叶缘", "水浸状", "黄化", "证据来源"]},
+  {"question_id": "q_blast_001", "expected_keywords": ["梭形病斑", "褐色斑点", "人工复核"]},
+  {"question_id": "q_tungro_001", "expected_keywords": ["高风险", "experimental", "不建议直接进入正式模型声明"]}
+]

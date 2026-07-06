@@ -1,0 +1,83 @@
+[
+  {
+    "source_id": "src_irri_blb",
+    "source_title": "IRRI Rice Knowledge Bank - Bacterial blight",
+    "source_type": "authority_website",
+    "authority_level": "A",
+    "url_or_reference": "https://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/bacterial-blight",
+    "language": "en",
+    "notes": "Authority reference for BLB symptoms, conditions, and management."
+  },
+  {
+    "source_id": "src_irri_blast",
+    "source_title": "IRRI Rice Knowledge Bank - Blast",
+    "source_type": "authority_website",
+    "authority_level": "A",
+    "url_or_reference": "https://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/blast-leaf-collar",
+    "language": "en",
+    "notes": "Authority reference for rice blast symptom and disease cycle."
+  },
+  {
+    "source_id": "src_irri_brown_spot",
+    "source_title": "IRRI Rice Knowledge Bank - Brown spot",
+    "source_type": "authority_website",
+    "authority_level": "A",
+    "url_or_reference": "https://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/brown-spot",
+    "language": "en",
+    "notes": "Authority reference for brown spot symptoms and field risk factors."
+  },
+  {
+    "source_id": "src_irri_tungro",
+    "source_title": "IRRI Rice Knowledge Bank - Tungro",
+    "source_type": "authority_website",
+    "authority_level": "A",
+    "url_or_reference": "https://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/tungro",
+    "language": "en",
+    "notes": "Authority reference for tungro symptoms, vectors, and risk."
+  },
+  {
+    "source_id": "src_cabi_blb",
+    "source_title": "CABI PlantwisePlus Knowledge Bank - Rice bacterial leaf blight",
+    "source_type": "technical_manual",
+    "authority_level": "A",
+    "url_or_reference": "https://plantwiseplusknowledgebank.org/",
+    "language": "en",
+    "notes": "CABI/PlantwisePlus technical knowledge reference for bacterial leaf blight."
+  },
+  {
+    "source_id": "src_cabi_blast",
+    "source_title": "CABI PlantwisePlus Knowledge Bank - Rice blast",
+    "source_type": "technical_manual",
+    "authority_level": "A",
+    "url_or_reference": "https://plantwiseplusknowledgebank.org/",
+    "language": "en",
+    "notes": "CABI/PlantwisePlus technical knowledge reference for rice blast."
+  },
+  {
+    "source_id": "src_cabi_brown_spot",
+    "source_title": "CABI PlantwisePlus Knowledge Bank - Rice brown spot",
+    "source_type": "technical_manual",
+    "authority_level": "A",
+    "url_or_reference": "https://plantwiseplusknowledgebank.org/",
+    "language": "en",
+    "notes": "CABI/PlantwisePlus technical knowledge reference for brown spot."
+  },
+  {
+    "source_id": "src_cabi_tungro",
+    "source_title": "CABI PlantwisePlus Knowledge Bank - Rice tungro",
+    "source_type": "technical_manual",
+    "authority_level": "A",
+    "url_or_reference": "https://plantwiseplusknowledgebank.org/",
+    "language": "en",
+    "notes": "CABI/PlantwisePlus technical knowledge reference for tungro."
+  },
+  {
+    "source_id": "src_internal_v06",
+    "source_title": "system-v0.6-mock-env-isolated-baseline internal freeze notes",
+    "source_type": "internal_report",
+    "authority_level": "B",
+    "url_or_reference": "docs/system_v0_6_mock_env_freeze.md",
+    "language": "zh",
+    "notes": "Internal system boundary source for mock, smoke, and experimental safeguards."
+  }
+]

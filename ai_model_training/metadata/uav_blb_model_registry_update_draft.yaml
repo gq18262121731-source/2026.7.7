@@ -1,0 +1,33 @@
+registry_name: uav_blb_model_registry_update_draft
+based_on_registry: metadata/uav_blb_model_registry.yaml
+round: 31B
+proposed_action: no_active_candidate_change
+gate_status: WARNING
+proposed_entry:
+  model_id: experimental_408_strict_v0_2_reference
+  model_name: uav_blb_disease_yolo
+  version: experimental_strict408_v0_2_20260626
+  dataset: datasets/rice_uav_ms_blb_preview_1000
+  dataset_version: strict_408
+  stage: experimental
+  epochs: 20
+  weights: experiments/uav_blb_yolo/runs/exp_uav_blb_preview408_strict_v0_2_controlled/weights/best.pt
+  weights_exists: true
+  weights_size_bytes: 6264036
+  weights_sha256: 4936e4d347d0622f62de1c6b61495509a85214e19ae6994baa6713b085ab8c21
+  validation_report: reports/uav_blb_strict408_v0_2_validation_metrics.json
+  validation_metric_scope: experimental_metrics
+  comparison_report: reports/uav_blb_strict408_v0_2_vs_exp408_epoch5_comparison.json
+  candidate_gate_report: reports/uav_blb_strict408_v0_2_candidate_gate_report.json
+  recommended_usage: experimental reference only; do not replace active optional candidate
+  formal_metric_available: false
+  backend_default: false
+  notes:
+  - Strict_408 controlled run completed successfully.
+  - Do not present as a formal or production multispectral model.
+  - Hold as reference because historical baseline and new run are not directly apples-to-apples.
+recommended_candidate_after_review:
+  keep_model_id: experimental_408_epoch5
+  change_required: false
+  reason: Gate WARNING; new run is useful but not strong enough to replace the active
+    optional candidate under mixed validation conditions.

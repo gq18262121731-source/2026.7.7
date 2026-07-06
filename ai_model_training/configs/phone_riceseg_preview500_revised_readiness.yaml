@@ -1,0 +1,51 @@
+status: planning_only_not_executed
+model_name: phone_rice_disease_yolo
+model_family: yolo
+task: detect
+dataset_name: RiceSegPreview500Revised
+dataset_id: rice_phone_rgb_riceseg_preview_500_revised_v0_1
+dataset_root: ai_model_training/datasets/rice_phone_rgb_riceseg_preview_500_revised_v0_1
+data_yaml: ai_model_training/datasets/rice_phone_rgb_riceseg_preview_500_revised_v0_1/data.yaml
+dataset_version: rice_phone_rgb_riceseg_preview_500_revised_v0_1
+class_count: 4
+classes:
+  - bacterial_blight
+  - blast
+  - brown_spot
+  - tungro
+source_type: phone_rgb
+sensor_type: smartphone_rgb
+training_stage: readiness_planning_only
+image_size: 640
+batch_size: 8
+learning_rate: 0.003
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: ai_model_training/experiments/phone_rgb_yolo/runs
+seed: 2026
+device: cpu
+workers: 0
+cos_lr: true
+warmup_epochs: 3
+patience: 20
+weight_decay: 0.0005
+formal_metric_available: false
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.6
+  hsv_v: 0.35
+  degrees: 8
+  translate: 0.08
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  fliplr: 0.5
+  flipud: 0.0
+  mosaic: 0.8
+  close_mosaic: 10
+  mixup: 0.05
+  copy_paste: 0.0
+notes:
+  - Planning config only; do not execute in this round.
+  - Preview_500 revised_v0_1 manual gate passed, but direct training is still not unlocked.
+  - Current Python environment lacks torch and ultralytics, so environment preparation is still required before any execution.

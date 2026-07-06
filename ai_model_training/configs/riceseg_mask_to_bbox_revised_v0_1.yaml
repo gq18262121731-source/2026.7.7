@@ -1,0 +1,66 @@
+rule_version: riceseg_mask_to_bbox_revised_v0_1
+
+global:
+  default_min_area_pixels: 20
+  default_min_area_ratio: 0.0002
+  default_morph_open_kernel: 0
+  default_morph_close_kernel: 0
+  default_merge_nearby_boxes: false
+  default_merge_distance_pixels: 0
+  default_min_box_width: 1
+  default_min_box_height: 1
+  remove_tiny_components: true
+  max_review_items: 80
+  review_items_per_class: 20
+
+per_class:
+  bacterial_blight:
+    min_area_pixels: 40
+    min_area_ratio: 0.00035
+    morph_open_kernel: 3
+    morph_close_kernel: 3
+    merge_nearby_boxes: true
+    merge_distance_pixels: 10
+    min_box_width: 6
+    min_box_height: 6
+    rationale: >
+      Manual review and raw-mask forensics showed dense pepper-noise components in
+      bacterial_blight masks. A light open/close pass plus stronger component
+      filtering keeps the dominant lesion regions while suppressing stray shards.
+  tungro:
+    min_area_pixels: 40
+    min_area_ratio: 0.00035
+    morph_open_kernel: 3
+    morph_close_kernel: 3
+    merge_nearby_boxes: true
+    merge_distance_pixels: 10
+    min_box_width: 6
+    min_box_height: 6
+    rationale: >
+      Tungro issue samples showed the same tiny-component explosion as
+      bacterial_blight. The revised rule mirrors the bacterial_blight cleanup so
+      the preview stays comparable and conservative.
+  blast:
+    min_area_pixels: 20
+    min_area_ratio: 0.0002
+    morph_open_kernel: 0
+    morph_close_kernel: 0
+    merge_nearby_boxes: false
+    merge_distance_pixels: 0
+    min_box_width: 1
+    min_box_height: 1
+    rationale: >
+      Blast samples passed the first-round manual review, so the revised preview
+      keeps the original conservative conversion behavior.
+  brown_spot:
+    min_area_pixels: 20
+    min_area_ratio: 0.0002
+    morph_open_kernel: 0
+    morph_close_kernel: 0
+    merge_nearby_boxes: false
+    merge_distance_pixels: 0
+    min_box_width: 1
+    min_box_height: 1
+    rationale: >
+      Brown_spot samples also passed the first-round manual review, so no extra
+      suppression is added in v0_1.

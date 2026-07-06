@@ -1,0 +1,22 @@
+experiment_id: PHONE-E1
+model_name: phone_rice_disease_yolo
+model_family: yolo
+dataset_name: rice_phone_rgb
+dataset_version: rice_phone_rgb_v0.1
+data_yaml: ../datasets/rice_phone_rgb/data.yaml
+image_size: 640
+epochs: null
+batch_size: null
+optimizer: auto
+learning_rate: null
+pretrained_weight: yolov8n.pt
+seed: 2026
+device: auto
+augmentation:
+  hsv: cautious
+  mosaic: true
+  mixup: experiment_only
+  blur: light
+  noise: light
+  crop: light
+notes: "第一轮仅为配置模板，训练轮数和 batch size 待硬件与数据量确认。"

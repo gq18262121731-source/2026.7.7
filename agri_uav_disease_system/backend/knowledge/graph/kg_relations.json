@@ -1,0 +1,13 @@
+[
+  {"relation_id": "affects", "label": "affects", "description": "Disease affects a crop."},
+  {"relation_id": "caused_by", "label": "caused by", "description": "Disease is caused by a pathogen."},
+  {"relation_id": "has_symptom", "label": "has symptom", "description": "Disease has a symptom."},
+  {"relation_id": "occurs_on", "label": "occurs on", "description": "Disease occurs on a plant part."},
+  {"relation_id": "favored_by", "label": "favored by", "description": "Disease is favored by an environment or condition."},
+  {"relation_id": "transmitted_by", "label": "transmitted by", "description": "Disease is transmitted by a pathway."},
+  {"relation_id": "managed_by", "label": "managed by", "description": "Disease can be managed by a measure."},
+  {"relation_id": "confused_with", "label": "confused with", "description": "Disease can be confused with another disease or stress."},
+  {"relation_id": "maps_to", "label": "maps to", "description": "Disease maps to a model class."},
+  {"relation_id": "supported_by", "label": "supported by", "description": "Disease is supported by an evidence source."},
+  {"relation_id": "vector_of", "label": "vector of", "description": "Pest is a vector of disease."}
+]

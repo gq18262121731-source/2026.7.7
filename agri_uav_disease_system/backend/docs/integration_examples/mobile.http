@@ -1,0 +1,58 @@
+@baseUrl = http://127.0.0.1:8000
+@plotId = demo_stage5_plot_example
+@recordId = demo_stage5_record_example
+@alertId = demo_stage5_alert_example
+@imagePath = ./sample.jpg
+
+### Single image detection
+POST {{baseUrl}}/api/detect/image
+Content-Type: multipart/form-data; boundary=----AgriBoundary
+
+------AgriBoundary
+Content-Disposition: form-data; name="file"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< {{imagePath}}
+------AgriBoundary
+Content-Disposition: form-data; name="plot_id"
+
+{{plotId}}
+------AgriBoundary
+Content-Disposition: form-data; name="source_type"
+
+manual_upload
+------AgriBoundary--
+
+### Mobile overview, user_id is reserved and currently does not filter
+GET {{baseUrl}}/api/mobile/overview?user_id=demo_user
+
+### Mobile plots
+GET {{baseUrl}}/api/mobile/plots?user_id=demo_user
+
+### Mobile plot detail
+GET {{baseUrl}}/api/mobile/plots/{{plotId}}
+
+### Mobile record detail
+GET {{baseUrl}}/api/mobile/records/{{recordId}}
+
+### Legacy mobile alerts
+GET {{baseUrl}}/api/mobile/alerts
+
+### Mobile suggestion
+GET {{baseUrl}}/api/mobile/suggestions/{{recordId}}
+
+### Alert list
+GET {{baseUrl}}/api/alerts?page=1&page_size=20
+
+### Resolve alert with demo audit fields
+POST {{baseUrl}}/api/alerts/{{alertId}}/resolve
+Content-Type: application/json
+
+{
+  "operator_id": "demo_user",
+  "operator_name": "演示用户",
+  "note": "已通知农技人员复核"
+}
+
+### Alert action history
+GET {{baseUrl}}/api/alerts/{{alertId}}/actions

@@ -1,0 +1,39 @@
+# UAV / multispectral-view YOLO training config.
+# Suggested placeholders only. All values are 待真实训练确认.
+
+status: "待真实训练确认"
+experiment_name: uav_ms_baseline_v0_1
+model_name: uav_rice_disease_yolo
+model_family: yolo
+task: detect
+data_yaml: ai_model_training/datasets/rice_uav_ms/data.yaml
+dataset_root: ai_model_training/datasets/rice_uav_ms
+dataset_version: rice_uav_ms_v0.2_real_smoke_auxiliary_panicle
+class_count: 1
+image_size: 1024  # 待真实训练确认
+batch_size: 4  # 待真实训练确认
+epochs: 100  # 待真实训练确认
+learning_rate: 0.001  # 待真实训练确认
+optimizer: auto
+pretrained_weight: yolov8n.pt  # 待真实训练确认
+output_dir: ai_model_training/experiments/uav_ms_yolo/runs
+seed: 2026
+device: auto
+workers: 4
+early_stopping:
+  enabled: true
+  patience: 20  # 待真实训练确认
+augmentation:
+  enabled: true
+  hsv: cautious
+  mosaic: true
+  mixup: false
+  scale: true
+  translate: true
+  rotate: light
+  cloud_shadow_simulation: reserved
+uav_tiling:
+  tile_size: 1024  # 待真实训练确认
+  overlap: 0.2  # 待真实训练确认
+  min_object_keep_ratio: 0.5  # 待真实训练确认
+notes: "第二轮配置骨架，不启动真实训练，不承诺最终效果。"

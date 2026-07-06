@@ -1,0 +1,210 @@
+version: "2026-06-23"
+description: "Global class registry for rice disease, pest, pest damage, crop object, and excluded labels."
+rules:
+  normal_as_detection_class: false
+  healthy_as_detection_class: false
+  background_as_detection_class: false
+  unknown_uncertain_trainable: false
+  severity_as_class: false
+  data_yaml_only_contains_enabled_training_classes: true
+
+disease_classes:
+  - code: rice_blast
+    zh_name: "稻瘟病"
+    en_name: "Rice blast"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb, uav_multispectral]
+    aliases: [Blast, Rice_Blast, "Rice blast", "Leaf Blast", "Neck Blast", Rice__LeafBlast, Rice__NeckBlast]
+    notes: "Leaf blast and neck blast may be split in future formal datasets; the current registry maps both to rice_blast."
+  - code: bacterial_leaf_blight
+    zh_name: "白叶枯病"
+    en_name: "Bacterial leaf blight"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb, uav_multispectral]
+    aliases: [BLB, Bacterial_Blight, "Bacterial Blight", "Bacterial Leaf Blight", Rice__BacterialLeafBlight]
+    notes: "Low/high BLB severity must remain metadata, not separate YOLO classes."
+  - code: brown_spot
+    zh_name: "褐斑病"
+    en_name: "Brown spot"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["Brown Spot", Brown_Spot, Rice__BrownSpot]
+  - code: sheath_blight
+    zh_name: "纹枯病"
+    en_name: "Sheath blight"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb, uav_multispectral]
+    aliases: ["Sheath Blight", "Rice Sheath Blight"]
+  - code: bacterial_leaf_streak
+    zh_name: "细菌性条斑病"
+    en_name: "Bacterial leaf streak"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_multispectral]
+    aliases: ["Bacterial Leaf Streak", BLS]
+  - code: false_smut
+    zh_name: "稻曲病"
+    en_name: "False smut"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["False Smut", "Rice False Smut"]
+  - code: tungro
+    zh_name: "水稻东格鲁病"
+    en_name: "Rice tungro"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_rgb, uav_multispectral]
+    aliases: ["Rice Tungro", Tungro]
+  - code: narrow_brown_spot
+    zh_name: "窄褐斑病"
+    en_name: "Narrow brown spot"
+    priority: P1
+    suitable_source_types: [phone_rgb]
+    aliases: ["Narrow Brown Spot", Rice__NarrowBrownLeafSpot]
+  - code: leaf_smut
+    zh_name: "叶黑粉病"
+    en_name: "Leaf smut"
+    priority: P1
+    suitable_source_types: [phone_rgb]
+    aliases: ["Leaf Smut", Rice__LeafSmut]
+  - code: leaf_scald
+    zh_name: "叶枯灼伤类"
+    en_name: "Leaf scald"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["Leaf Scald", Rice__LeafScald]
+  - code: stem_rot
+    zh_name: "茎腐病"
+    en_name: "Stem rot"
+    priority: P2
+    suitable_source_types: [phone_rgb]
+    aliases: ["Stem Rot"]
+  - code: bakanae
+    zh_name: "恶苗病"
+    en_name: "Bakanae disease"
+    priority: P2
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: [Bakanae, "Foolish seedling disease"]
+  - code: rice_grassy_stunt
+    zh_name: "水稻草状矮缩病"
+    en_name: "Rice grassy stunt"
+    priority: P2
+    suitable_source_types: [uav_rgb, uav_multispectral]
+    aliases: ["Rice Grassy Stunt", "Grassy Stunt"]
+  - code: rice_ragged_stunt
+    zh_name: "水稻齿叶矮缩病"
+    en_name: "Rice ragged stunt"
+    priority: P2
+    suitable_source_types: [uav_rgb, uav_multispectral]
+    aliases: ["Rice Ragged Stunt", "Ragged Stunt"]
+
+pest_classes:
+  - code: rice_stem_borer
+    zh_name: "水稻螟虫类"
+    en_name: "Rice stem borer"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["Stem borer", "Chilo suppressalis"]
+    notes: "UAV views usually detect symptoms such as whitehead/deadheart more reliably than the insect body."
+  - code: rice_leaf_folder
+    zh_name: "稻纵卷叶螟"
+    en_name: "Rice leaffolder"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["Leaf folder", Leaffolder, "Leaf Roller", "Cnaphalocrocis medinalis"]
+  - code: brown_planthopper
+    zh_name: "褐飞虱"
+    en_name: "Brown planthopper"
+    priority: P0
+    suitable_source_types: [phone_rgb, uav_rgb, uav_multispectral]
+    aliases: ["Brown planthopper", BPH, "Nilaparvata lugens"]
+  - code: white_backed_planthopper
+    zh_name: "白背飞虱"
+    en_name: "White-backed planthopper"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["White-backed planthopper", WBPH]
+  - code: green_leafhopper
+    zh_name: "绿叶蝉"
+    en_name: "Green leafhopper"
+    priority: P1
+    suitable_source_types: [phone_rgb]
+    aliases: ["Green leafhopper", "Nephotettix virescens"]
+  - code: rice_hispa
+    zh_name: "稻铁甲虫/稻负泥虫类"
+    en_name: "Rice hispa"
+    priority: P1
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: [Hispa, Rice__Hispa]
+  - code: rice_bug
+    zh_name: "稻蝽类"
+    en_name: "Rice bug"
+    priority: P1
+    suitable_source_types: [phone_rgb]
+    aliases: ["Rice bug"]
+  - code: armyworm
+    zh_name: "粘虫/行军虫类"
+    en_name: "Armyworm"
+    priority: P2
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: [Armyworm]
+  - code: whorl_maggot
+    zh_name: "稻潜叶蝇/稻秆蚊类"
+    en_name: "Whorl maggot"
+    priority: P2
+    suitable_source_types: [phone_rgb]
+    aliases: ["Whorl maggot"]
+  - code: gall_midge
+    zh_name: "稻瘿蚊"
+    en_name: "Gall midge"
+    priority: P2
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["Gall midge"]
+
+pest_damage_classes:
+  - code: rice_stem_borer_damage
+    zh_name: "螟虫危害症状"
+    en_name: "Stem borer damage"
+    priority: P1
+    suitable_source_types: [uav_rgb, uav_multispectral]
+    aliases: [whitehead, deadheart, "stem borer damage"]
+    notes: "More realistic for UAV detection than insect-body labels."
+  - code: planthopper_damage
+    zh_name: "飞虱危害症状"
+    en_name: "Planthopper damage"
+    priority: P1
+    suitable_source_types: [uav_rgb, uav_multispectral]
+    aliases: [hopperburn, "yellowing patch", "planthopper damage"]
+
+crop_object_classes:
+  - code: rice_panicle
+    zh_name: "稻穗"
+    en_name: "Rice panicle"
+    priority: auxiliary
+    suitable_source_types: [uav_rgb]
+    aliases: [Rice-Panicle, "rice panicle"]
+    notes: "Auxiliary crop_object only; not disease or pest."
+  - code: rice_seedling
+    zh_name: "水稻幼苗"
+    en_name: "Rice seedling"
+    priority: auxiliary
+    suitable_source_types: [phone_rgb, uav_rgb]
+    aliases: ["rice seedling", RiceSeedling]
+  - code: rice_leaf
+    zh_name: "水稻叶片"
+    en_name: "Rice leaf"
+    priority: auxiliary
+    suitable_source_types: [phone_rgb]
+    aliases: ["rice leaf", leaf]
+
+excluded_classes:
+  - code: healthy
+    zh_name: "健康"
+    aliases: [healthy, "healthy rice", Rice__Healthy, normal]
+    handling: "Store as health_status metadata only; never write as a YOLO detection class."
+  - code: background
+    zh_name: "背景"
+    aliases: [background]
+    handling: "Exclude from detection labels."
+  - code: unknown
+    zh_name: "未知"
+    aliases: [unknown, uncertain]
+    handling: "Keep for manual review only; never use as a trainable label."

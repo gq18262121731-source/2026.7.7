@@ -1,0 +1,2 @@
+image_id,flight_task_id,drone_id,camera_type,sensor_type,capture_time,plot_id,plot_name,region_name,lng,lat,altitude,flight_height,growth_stage,weather,light_condition,shoot_angle,source_file,band_names,band_count,radiometric_calibrated,band_aligned,reflectance_panel_used,index_generated,notes
+uav_20260622_0001,flight_20260622_A,drone_001,unknown,RGB,2026-06-22T10:30:00+08:00,plot_A_01,示例地块,示例乡镇,116.000000,30.000000,25,20,分蘖期,晴,强光,俯视,raw/uav_20260622_0001.jpg,,,,,,,待确认样例

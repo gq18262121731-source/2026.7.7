@@ -1,0 +1,85 @@
+dataset:
+  name: rice_uav_ms_blb_segmentation_408_patch_v2
+  path: datasets/rice_uav_ms_blb_segmentation_408_patch_v2
+  manifest: meta/split_manifest.csv
+  patch_size: 256
+  stride: 128
+  mask_format: png_binary_0_255
+  bbox_route_status: BLOCKED
+
+input_configs:
+  - code: D1_5BAND_VALID
+    feature_column: feature_d1_path
+    input_channels: 6
+    description: first 5 multispectral bands plus valid-image mask channel
+  - code: D2_5BAND_NDVI
+    feature_column: feature_d2_path
+    input_channels: 6
+    description: first 5 multispectral bands plus NDVI derived channel
+  - code: D3_5BAND_NDRE
+    feature_column: feature_d3_path
+    input_channels: 6
+    description: first 5 multispectral bands plus NDRE derived channel
+
+models:
+  - code: UNET_BASELINE
+    family: unet
+    encoder: lightweight_local
+  - code: UNETPP_EFFICIENTNET_B0_CANDIDATE
+    family: unetpp
+    encoder: efficientnet-b0-preferred-or-lightweight-local-fallback
+  - code: UNETPP_EFFICIENTNET_B3_CANDIDATE
+    family: unetpp
+    encoder: efficientnet-b3-preferred-or-lightweight-local-fallback
+
+losses:
+  - code: BCE_DICE
+    bce_weight: 1.0
+    dice_weight: 1.0
+  - code: BCE_TVERSKY_A06_B04
+    bce_weight: 1.0
+    tversky_weight: 1.0
+    alpha: 0.6
+    beta: 0.4
+  - code: BCE_TVERSKY_A07_B03
+    bce_weight: 1.0
+    tversky_weight: 1.0
+    alpha: 0.7
+    beta: 0.3
+
+training:
+  epochs: 100
+  min_epochs_for_formal: 100
+  early_stopping_patience: 25
+  batch_size: 4
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  num_workers: 0
+  seed: 20260703
+  output_dir: runs/uav_blb_segmentation_408_patch_v2_formal
+
+evaluation:
+  thresholds:
+    start: 0.30
+    stop: 0.75
+    step: 0.05
+  postprocess_ablation:
+    - RAW_MASK
+    - THRESHOLD_ONLY
+    - THRESHOLD_REMOVE_SMALL_COMPONENTS
+    - THRESHOLD_REMOVE_SMALL_COMPONENTS_OPEN_CLOSE
+  remove_small_components_min_area:
+    - 16
+    - 32
+    - 64
+    - 128
+  sample_prediction_count: 30
+
+gate:
+  test_precision_min: 0.72
+  test_recall_min: 0.80
+  test_dice_min: 0.78
+  visual_acceptable_min: 0.80
+  major_failure_max: 0
+  production_ready: false
+  backend_integration_allowed: false

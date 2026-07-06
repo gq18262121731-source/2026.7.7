@@ -1,0 +1,37 @@
+# Phone RGB-view YOLO training config.
+# Suggested placeholders only. All values are 待真实训练确认.
+
+status: "待真实训练确认"
+experiment_name: phone_rgb_baseline_v0_1
+model_name: phone_rice_disease_yolo
+model_family: yolo
+task: detect
+data_yaml: ai_model_training/datasets/rice_phone_rgb/data.yaml
+dataset_root: ai_model_training/datasets/rice_phone_rgb
+dataset_version: rice_phone_rgb_v0.2_real_smoke
+class_count: 3
+image_size: 640  # 待真实训练确认
+batch_size: 8  # 待真实训练确认
+epochs: 100  # 待真实训练确认
+learning_rate: 0.001  # 待真实训练确认
+optimizer: auto
+pretrained_weight: yolov8n.pt  # 待真实训练确认
+output_dir: ai_model_training/experiments/phone_rgb_yolo/runs
+seed: 2026
+device: auto
+workers: 4
+early_stopping:
+  enabled: true
+  patience: 20  # 待真实训练确认
+augmentation:
+  enabled: true
+  hsv: cautious
+  mosaic: true
+  mixup: experiment_only
+  flip: true
+  scale: true
+  translate: true
+  blur: light
+  noise: light
+  crop: light
+notes: "第二轮配置骨架，不启动真实训练，不承诺最终效果。"

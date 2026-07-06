@@ -1,0 +1,22 @@
+status: plan_only
+plan_name: relaxed_balance_preview600_candidate_review_only
+dataset_lineage: candidate_only_not_training_ready
+source_base_dataset: datasets/rice_uav_ms_blb_preview_1000
+target_name: preview_600_candidate
+target_size: 600
+rule_family: relaxed_balance
+boundaries:
+  no_training: true
+  no_new_weights: true
+  no_formal_dataset_generation: true
+  no_backend_default_change: true
+  keep_healthy_others_unlabeled_excluded: true
+  keep_severity_as_metadata_only: true
+  keep_patch_dedup: true
+  keep_preview_hash_dedup: true
+review_findings:
+  observed_selected_count_under_readonly_simulation: 408
+  strict_baseline_selected_count: 408
+  sample_gain_observed: 0
+decision: do_not_generate_candidate_dataset_yet
+note: Relaxing only balance constraints did not unlock additional stable samples in round 30B read-only evaluation.

@@ -1,0 +1,146 @@
+registry_name: phone_model_registry
+created_at: "2026-06-23T00:00:00+08:00"
+project: rice_pest_disease_image_detection_system
+scope: phone_rice_disease_yolo_smoke_and_experimental_registry
+boundary:
+  no_training_this_round: true
+  no_validation_this_round: true
+  no_inference_this_round: true
+  no_new_weights_this_round: true
+  no_formal_metrics: true
+  no_backend_change_this_round: true
+common_model_metadata:
+  model_name: phone_rice_disease_yolo
+  model_family: yolo
+  task: detect
+  source_type: phone_rgb
+  sensor_type: smartphone_rgb
+  current_target_type: disease
+  category_type: disease
+  is_formal_model: false
+  formal_metric_available: false
+  healthy_excluded: true
+  class_mapping_strategy: source_directory_based_remap
+models:
+  - model_id: phone_smoke_epoch1_small
+    model_name: phone_rice_disease_yolo
+    version: smoke_epoch1_20260623
+    stage: smoke
+    dataset: datasets/rice_phone_rgb
+    data_yaml: datasets/rice_phone_rgb/data.yaml
+    images: 39
+    labels: 39
+    bbox: 154
+    class_count: 3
+    classes:
+      - "bacterial_leaf_blight"
+      - "brown_spot"
+      - "rice_blast"
+    epochs: 1
+    weights: experiments/phone_rgb_yolo/runs/smoke_phone_rgb_baseline_v0_1/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6223793
+    weights_sha256: c3f30bbb9853a74ef281536918e098388a5dca5f477120abe90d2a31dc04ff13
+    validation_report: reports/phone_smoke_validation.json
+    validation_metric_scope: smoke_test_metrics
+    inference_report: reports/phone_smoke_infer_result.json
+    infer_images: 1
+    infer_detections: 0
+    purpose: phone smoke wiring/schema ??
+    recommended_usage: smoke wiring/schema check only
+    source_type: phone_rgb
+    sensor_type: smartphone_rgb
+    current_target_type: disease
+    is_formal_model: false
+    formal_metric_available: false
+    healthy_excluded: true
+    class_mapping_strategy: source_directory_based_remap
+    notes:
+      - 39 ? Kaggle RICE Leaf Diseases ??????? smoke ???
+      - ???????????????????
+  - model_id: phone_riceleafdiseasebd_exp_epoch1
+    model_name: phone_rice_disease_yolo
+    version: experimental_epoch1_20260623
+    stage: experimental
+    dataset: datasets/rice_phone_rgb_expanded
+    data_yaml: datasets/rice_phone_rgb_expanded/data.yaml
+    images: 7575
+    labels: 7575
+    bbox: 69769
+    split:
+      train: 5300
+      val: 1514
+      test: 761
+    class_count: 5
+    classes:
+      - "brown_spot"
+      - "rice_blast"
+      - "leaf_smut"
+      - "tungro"
+      - "sheath_blight"
+    epochs: 1
+    weights: experiments/phone_rgb_yolo/runs/exp_phone_riceleafdiseasebd_v0_1_1epoch/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6222884
+    weights_sha256: 29f70fbbca73673a1009aaa83f704a29791b984db9c038089207554e4228bdbe
+    validation_report: null
+    validation_metric_scope: results_csv_experimental_reference
+    inference_report: null
+    purpose: expanded dataset first experimental run
+    recommended_usage: early experimental reference only
+    source_type: phone_rgb
+    sensor_type: smartphone_rgb
+    current_target_type: disease
+    is_formal_model: false
+    formal_metric_available: false
+    healthy_excluded: true
+    class_mapping_strategy: source_directory_based_remap
+    notes:
+      - 1 epoch ????? expanded ??????
+      - ????? validate/infer???????? run ? results.csv?
+  - model_id: phone_riceleafdiseasebd_exp_epoch3
+    model_name: phone_rice_disease_yolo
+    version: experimental_3epoch_20260623
+    stage: experimental
+    dataset: datasets/rice_phone_rgb_expanded
+    data_yaml: datasets/rice_phone_rgb_expanded/data.yaml
+    images: 7575
+    labels: 7575
+    bbox: 69769
+    split:
+      train: 5300
+      val: 1514
+      test: 761
+    class_count: 5
+    classes:
+      - "brown_spot"
+      - "rice_blast"
+      - "leaf_smut"
+      - "tungro"
+      - "sheath_blight"
+    epochs: 3
+    weights: experiments/phone_rgb_yolo/runs/exp_phone_riceleafdiseasebd_v0_2_3epoch/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6223140
+    weights_sha256: cbcf6e33a1106f0da458722077babe105164db45c195431ca11d68f0dc610461
+    validation_report: reports/phone_riceleafdiseasebd_exp_validation.json
+    validation_metric_scope: experimental_metrics
+    inference_report: reports/phone_riceleafdiseasebd_exp_infer_result.json
+    infer_images: 10
+    infer_detections: 20
+    purpose: current best phone experimental candidate
+    recommended_usage: optional experimental backend candidate behind explicit model hint
+    source_type: phone_rgb
+    sensor_type: smartphone_rgb
+    current_target_type: disease
+    is_formal_model: false
+    formal_metric_available: false
+    healthy_excluded: true
+    class_mapping_strategy: source_directory_based_remap
+    notes:
+      - ????? phone optional experimental candidate?
+      - ??????????? smoke ????????
+recommended_candidate:
+  model_id: phone_riceleafdiseasebd_exp_epoch3
+  reason: 3 epoch run ?? expanded ???????? validate/infer ???? 1 epoch ??????? experimental ???
+  integration_policy: ????? model_hint=phone_exp ? model_stage_hint=experimental ???????? phone smoke/?????

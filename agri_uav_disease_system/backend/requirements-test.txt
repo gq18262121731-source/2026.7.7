@@ -1,0 +1,4 @@
+﻿pytest
+httpx
+sqlalchemy
+

@@ -1,0 +1,22 @@
+{
+  "disease_id": "bacterial_leaf_blight",
+  "zh_name": "水稻白叶枯病",
+  "en_name": "Bacterial leaf blight",
+  "aliases": ["BLB", "leaf blight", "uav_blb", "白叶枯"],
+  "pathogen_type": "bacterium",
+  "pathogen_name": "Xanthomonas oryzae pv. oryzae",
+  "affected_crop": ["rice"],
+  "affected_parts": ["leaf", "leaf margin"],
+  "typical_symptoms": ["叶缘水浸状条斑", "病斑沿叶脉扩展", "叶片黄化或灰白枯死"],
+  "early_symptoms": ["叶缘出现水浸状或黄绿色小条斑", "清晨可见病斑边缘潮湿感"],
+  "late_symptoms": ["病斑扩大并融合", "叶片大面积枯白", "严重时植株早衰"],
+  "similar_diseases": ["bacterial_leaf_streak", "rice_blast", "brown_spot"],
+  "favorable_conditions": ["高湿多雨", "强风雨或台风造成伤口", "氮肥偏多", "易感品种连片种植"],
+  "transmission": ["带病种子或稻草残体", "灌溉水和雨水传播", "田间机械或风雨造成伤口后侵入"],
+  "risk_notes": ["UAV 影像只能提示冠层异常，需近距离复核叶缘症状", "与干旱、药害和其他叶枯症状可能混淆"],
+  "management_suggestions": ["优先选用抗病品种并使用健康种子", "合理施肥，避免氮肥过量", "改善排灌条件并减少病田水流传播", "发现疑似病株后进行田间复核并咨询当地植保人员"],
+  "model_class_mapping": ["bacterial_leaf_blight", "uav_blb", "uav_blb_disease", "BLB"],
+  "evidence_sources": ["src_irri_blb", "src_cabi_blb", "src_internal_v06"],
+  "authority_level": "A",
+  "last_updated": "2026-07-03"
+}

@@ -1,0 +1,21 @@
+cleaned408_v2_stage: TARGETED_SECOND_REVIEW
+source_manual_review: COMPLETE
+source_manual_gate: FAIL
+candidate_generation: COMPLETE
+second_review_total: 122
+second_review_reviewed: 122
+cleaned408_v2_gate: FAIL
+training_allowed: false
+original_images_modified: false
+original_labels_modified: false
+weights_modified: false
+backend_modified: false
+env_modified: false
+derived_dataset_created: true
+derived_dataset_root: datasets/rice_uav_ms_blb_cleaned408_v2
+yolo_class_policy: single class 0=bacterial_leaf_blight
+next_allowed_stage: TARGETED_LABEL_CORRECTION_OR_SECOND_REVIEW
+notes:
+  - decisions must come from real targeted second review operations
+  - manual second-review issue types are metadata only, not YOLO classes
+  - do not train unless cleaned408_v2_gate is PASS and the next training gate is explicitly started

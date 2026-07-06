@@ -1,0 +1,58 @@
+bbox_route_status: BLOCKED
+segmentation_route_stage: V1_0_INITIAL_RELEASE_INTEGRATION_PASS
+segmentation_patch_v2_dataset_created: true
+formal_training_executed: true
+formal_single_run_numeric_gate: PASS
+formal_single_run_visual_qa_gate: PASS
+backend_dry_run_candidate_review: PASS
+backend_dry_run_ui_api_design_review: PASS
+backend_dry_run_implementation_plan: PASS
+backend_dry_run_implementation: PASS
+backend_dry_run_ui_panel: PASS
+backend_dry_run_demo_acceptance: PASS
+backend_dry_run_demo_freeze: PASS
+controlled_field_trial_preparation: PASS
+env_change_classification: ACCEPTED_UNRELATED_LLM_CONFIG
+controlled_field_trial_implementation: PASS
+controlled_field_trial_system_acceptance: PASS
+v1_0_initial_release_integration: PASS
+release_version: uav_blb_ms_seg_v1.0
+release_stage: initial_release_testing
+production_scope: record_and_visualization_only
+alerting_enabled: false
+latest_alerts_enabled: false
+human_review_required: true
+backend_integration_candidate: true
+backend_integration_allowed: record_and_visualization_only
+backend_integration_mode: initial_release_testing
+production_ready: true
+original_images_modified: false
+original_labels_modified: false
+original_raster_masks_modified: false
+backend_modified: true
+backend_formal_route_modified: true
+env_modified: false
+formal_single_run_name: D2_5BAND_NDVI__UNET_BASELINE__BCE_TVERSKY_A07_B03
+formal_single_run_selected_threshold: 0.45
+formal_single_run_selected_postprocess: THRESHOLD_REMOVE_SMALL_COMPONENTS
+formal_single_run_selected_min_area: 128
+next_allowed_stage: V1_0_FIRST_RELEASE_TESTING_OR_ROLLBACK
+notes:
+  - bbox route remains blocked
+  - dry-run and field-trial endpoints remain available as rollback/demo paths
+  - backend default /api/detect/image route remains unchanged
+  - UI/API design review passed for dry-run-only implementation planning
+  - implementation plan passed without modifying backend code
+  - dry-run implementation added isolated experimental backend route
+  - formal UAV BLB segmentation endpoint is limited to records and visualization
+  - statistics, alerts, weights, and env remain unchanged by v1.0 release integration
+  - dry-run UI panel added as isolated experimental frontend form
+  - dry-run demo acceptance passed without statistics or alerts pollution
+  - dry-run demo runbook frozen for experimental demonstration only
+  - controlled field trial preparation completed for onsite TIF validation only
+  - field trial remains not production and must not enter statistics or alerts
+  - env change classification accepted after human confirmation; LLM config is unrelated to UAV BLB field trial inference
+  - controlled field trial implementation added isolated field_trial_only API, record store, exports, and tests
+  - controlled field trial system acceptance passed with synthetic 5-band TIF and formal business isolation checks
+  - v1.0 initial release integration added formal segmentation endpoint for records and visualization only
+  - v1.0 alerting and latest alerts remain disabled; all release records require human review

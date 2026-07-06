@@ -1,0 +1,51 @@
+﻿# Phone RiceLeafDiseaseBD expanded experimental training config.
+# Experimental only: not a formal model and not a replacement for smoke weights.
+
+status: experimental_ready
+experiment_name: exp_phone_riceleafdiseasebd_v0_1_1epoch
+model_name: phone_rice_disease_yolo
+model_family: yolo
+task: detect
+dataset_name: RiceLeafDiseaseBD
+dataset_root: ai_model_training/datasets/rice_phone_rgb_expanded
+data_yaml: ai_model_training/datasets/rice_phone_rgb_expanded/data.yaml
+dataset_version: rice_phone_rgb_expanded_v1
+class_count: 5
+classes:
+  - brown_spot
+  - rice_blast
+  - leaf_smut
+  - tungro
+  - sheath_blight
+source_type: phone_rgb
+sensor_type: smartphone_rgb
+training_stage: experimental
+image_size: 320
+batch_size: 8
+epochs: 1
+learning_rate: 0.001
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: ai_model_training/experiments/phone_rgb_yolo/runs
+seed: 2026
+device: auto
+workers: 4
+early_stopping:
+  enabled: true
+  patience: 20
+augmentation:
+  enabled: true
+  hsv: cautious
+  mosaic: true
+  mixup: experiment_only
+  flip: true
+  scale: true
+  translate: true
+  blur: light
+  noise: light
+  crop: light
+notes:
+  - RiceLeafDiseaseBD phone RGB YOLO expanded dataset.
+  - Healthy is excluded from disease detection classes.
+  - Source class id mismatch is handled by directory-based conservative remapping.
+  - Experimental reference only; do not report as formal model performance.

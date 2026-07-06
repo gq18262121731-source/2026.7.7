@@ -1,0 +1,5 @@
+[
+  {"question_id": "q_blb_001", "disease_id": "bacterial_leaf_blight", "question": "白叶枯病的典型症状是什么？"},
+  {"question_id": "q_blast_001", "disease_id": "rice_blast", "question": "稻瘟病和褐斑病如何区分？"},
+  {"question_id": "q_tungro_001", "disease_id": "tungro", "question": "tungro 报告为什么需要风险边界？"}
+]

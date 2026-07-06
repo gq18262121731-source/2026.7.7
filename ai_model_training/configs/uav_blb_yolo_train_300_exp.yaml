@@ -1,0 +1,42 @@
+status: experimental_only
+experiment_name: exp_uav_blb_preview300_v0_1
+model_name: uav_blb_disease_yolo
+model_family: yolo
+task: detect
+
+dataset_root: datasets/rice_uav_ms_blb_preview_300
+data_yaml: datasets/rice_uav_ms_blb_preview_300/data.yaml
+dataset_version: rice_uav_ms_blb_preview_expanded_v1
+class_count: 1
+classes:
+  - bacterial_leaf_blight
+
+source_type: uav_multispectral
+sensor_type: multispectral_preview_rgb_render
+training_stage: experimental
+category_type: disease
+
+image_size: 320
+batch_size: 4
+epochs: 3
+learning_rate: 0.001
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: experiments/uav_blb_yolo/runs
+seed: 2026
+device: cpu
+workers: 4
+
+early_stopping:
+  enabled: true
+  patience: 20
+
+boundaries:
+  experimental_only: true
+  no_formal_metrics: true
+  do_not_replace_smoke_weights: true
+  do_not_replace_backend_weights: true
+  do_not_pollute_rice_panicle_dataset: true
+  rgb_preview_not_formal_multispectral: true
+
+note: "由 BLB UAV 多光谱 TIF 派生 RGB preview 图训练，用于 experimental 链路验证，不代表正式多通道多光谱模型效果。"

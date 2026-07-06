@@ -1,0 +1,27 @@
+@baseUrl = http://127.0.0.1:8000
+@plotId = demo_stage5_plot_example
+@taskId = batch_example
+
+### Dashboard summary
+GET {{baseUrl}}/api/dashboard/summary
+
+### Dashboard plot list
+GET {{baseUrl}}/api/dashboard/plots
+
+### Dashboard plot detail
+GET {{baseUrl}}/api/dashboard/plots/{{plotId}}
+
+### Dashboard heatmap
+GET {{baseUrl}}/api/dashboard/heatmap
+
+### Dashboard disease statistics
+GET {{baseUrl}}/api/dashboard/disease-statistics
+
+### Dashboard latest records
+GET {{baseUrl}}/api/dashboard/latest-records?limit=10
+
+### Dashboard latest alerts
+GET {{baseUrl}}/api/dashboard/latest-alerts?limit=10
+
+### Batch task status
+GET {{baseUrl}}/api/tasks/{{taskId}}

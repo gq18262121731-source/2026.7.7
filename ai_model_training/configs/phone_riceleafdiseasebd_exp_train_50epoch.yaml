@@ -1,0 +1,55 @@
+status: experimental_ready_not_executed
+model_name: phone_rice_disease_yolo
+model_family: yolo
+task: detect
+dataset_name: RiceLeafDiseaseBD
+dataset_root: ai_model_training/datasets/rice_phone_rgb_expanded
+data_yaml: ai_model_training/datasets/rice_phone_rgb_expanded/data.yaml
+dataset_version: phone_riceleafdiseasebd_expanded_v1_frozen
+frozen_manifest: ai_model_training/metadata/phone_riceleafdiseasebd_dataset_frozen_manifest.yaml
+class_count: 5
+classes:
+- brown_spot
+- rice_blast
+- leaf_smut
+- tungro
+- sheath_blight
+source_type: phone_rgb
+sensor_type: smartphone_rgb
+training_stage: experimental
+image_size: 640
+batch_size: 8
+learning_rate: 0.0025
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: ai_model_training/experiments/phone_rgb_yolo/runs
+seed: 42
+device: auto
+workers: 2
+cos_lr: true
+warmup_epochs: 3
+patience: 20
+weight_decay: 0.0005
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.6
+  hsv_v: 0.35
+  degrees: 8
+  translate: 0.08
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  fliplr: 0.5
+  flipud: 0.0
+  mosaic: 0.8
+  close_mosaic: 10
+  mixup: 0.05
+  copy_paste: 0.0
+notes:
+- Experimental long-train config only; do not report as formal model.
+- Healthy is excluded from disease detection classes.
+- Source class id mismatch handled by source_directory_based_remap.
+- Do not overwrite 1 epoch or 3 epoch experimental weights.
+epochs: 50
+experiment_name: exp_phone_riceleafdiseasebd_v0_long_50epoch
+run_name: exp_phone_riceleafdiseasebd_v0_long_50epoch

@@ -1,0 +1,58 @@
+status: experimental_ready_not_executed
+model_name: phone_rice_disease_yolo
+model_family: yolo
+task: detect
+dataset_name: RiceLeafDiseaseBD
+dataset_id: phone_riceleafdiseasebd_expanded_v1
+dataset_root: ai_model_training/datasets/rice_phone_rgb_expanded
+data_yaml: ai_model_training/datasets/rice_phone_rgb_expanded/data.yaml
+dataset_version: phone_riceleafdiseasebd_expanded_v1_frozen
+frozen_manifest: ai_model_training/metadata/phone_riceleafdiseasebd_dataset_frozen_manifest.yaml
+class_count: 5
+classes:
+  - brown_spot
+  - rice_blast
+  - leaf_smut
+  - tungro
+  - sheath_blight
+source_type: phone_rgb
+sensor_type: smartphone_rgb
+training_stage: experimental
+image_size: 768
+batch_size: 4
+learning_rate: 0.003
+lrf: 0.01
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: ai_model_training/experiments/phone_rgb_yolo/runs
+experiment_name: exp_phone_riceleafdiseasebd_v0_5_30epoch_imgsz768
+run_name: exp_phone_riceleafdiseasebd_v0_5_30epoch_imgsz768
+seed: 42
+device: cuda
+workers: 4
+cache: false
+cos_lr: true
+warmup_epochs: 3
+patience: 20
+weight_decay: 0.0005
+formal_metric_available: false
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.6
+  hsv_v: 0.35
+  degrees: 5
+  translate: 0.08
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  fliplr: 0.5
+  flipud: 0.0
+  mosaic: 0.8
+  close_mosaic: 10
+  mixup: 0.05
+  copy_paste: 0.0
+notes:
+  - Controlled comparison config only. Do not start training in round 26.
+  - Frozen split must remain unchanged.
+  - This config exists to verify train-arg passthrough before any new GPU run.
+epochs: 30

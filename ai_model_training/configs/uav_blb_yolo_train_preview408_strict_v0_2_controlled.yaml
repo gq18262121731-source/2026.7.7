@@ -1,0 +1,51 @@
+status: experimental_only
+experiment_name: exp_uav_blb_preview408_strict_v0_2_controlled
+model_name: uav_blb_disease_yolo
+model_family: yolo
+task: detect
+
+dataset_root: datasets/rice_uav_ms_blb_preview_1000
+data_yaml: datasets/rice_uav_ms_blb_preview_1000/data.yaml
+dataset_version: strict_408
+dataset_alias: blb_preview408_strict_controlled
+source_dataset: strict_408
+actual_samples: 408
+class_count: 1
+classes:
+  - bacterial_leaf_blight
+
+source_type: uav_multispectral
+sensor_type: multispectral_preview_rgb_render
+training_stage: experimental
+category_type: disease
+formal_metric_available: false
+not_formal_model: true
+no_backend_default_change: true
+
+image_size: 640
+batch_size: 8
+epochs: 20
+learning_rate: 0.001
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: experiments/uav_blb_yolo/runs
+seed: 42
+device: cuda
+workers: 4
+plots: true
+val: true
+
+early_stopping:
+  enabled: true
+  patience: 20
+
+boundaries:
+  experimental_only: true
+  no_formal_metrics: true
+  no_backend_default_change: true
+  no_dataset_change: true
+  no_label_change: true
+  no_default_route_change: true
+  rgb_preview_not_formal_multispectral: true
+
+note: "Round-31 strict_408 controlled experimental run. Uses the clean constrained-408 dataset lineage only. Experimental only, not formal, and not a true multi-channel multispectral model."

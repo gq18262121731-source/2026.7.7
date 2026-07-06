@@ -1,0 +1,153 @@
+datasets:
+  rice_phone_rgb_expanded:
+    status: data_quality_suspect
+    reason:
+    - bbox misalignment observed
+    - irrelevant boxes observed
+    - weak-class learning failed
+    - not recommended for next experimental escalation
+    allowed_usage:
+    - historical experimental reference
+    - dataset quality discussion
+    - smoke comparison only
+    forbidden_usage:
+    - phone_exp_v2 backend upgrade
+    - formal model claim
+    - further blind 768/yolov8s/50epoch training without cleaning
+    next_action:
+    - search replacement dataset
+    - or build cleaned_v2 after manual relabeling
+  rice_phone_rgb_riceseg_preview_200:
+    machine_check: pass
+    manual_gate: warning
+    allowed_usage:
+    - visual review evidence
+    - conversion route diagnosis
+    - preview dataset discussion
+    forbidden_usage:
+    - formal model training
+    - preview_500 expansion
+    - backend upgrade
+    - production claim
+    next_action:
+    - adjust mask-to-bbox rules
+    - generate revised preview_200
+  rice_phone_rgb_riceseg_preview_200_revised_v0_1:
+    machine_check: pass
+    manual_gate: pass
+    gate_reason: revised manual review outputs saved under revised_v0_1 evidence chain
+      and all 80 reviewed samples were accepted
+    allowed_usage:
+    - preview_500 expansion planning
+    - conversion rule validation
+    - dataset quality discussion
+    forbidden_usage:
+    - direct model training
+    - backend upgrade
+    - formal claim
+    - production deployment
+    next_action:
+    - prepare preview_500 expansion plan
+  rice_phone_rgb_riceseg_preview_500_revised_v0_1:
+    dataset_stage: preview_expansion
+    machine_check: pass
+    manual_gate: pass
+    gate_reason: generated from the revised_v0_1 conversion rule lineage; machine
+      dataset check passed with issues=[] and the 120-item manual review completed
+      with 2 mask_noise findings in blast only, obvious_error_ratio=0.0167, gate=PASS
+    training_readiness: ready_gpu
+    environment_status: torchgpu is READY_GPU, health and vision311 are READY_CPU_ONLY,
+      current base interpreter remains PARTIAL
+    sanity_training:
+      status: complete
+      epochs: 1
+      model: yolov8n
+      run_name: smoke_exp_phone_riceseg_preview500_revised_v0_1_sanity_1epoch
+      run_dir: ai_model_training/experiments/phone_rgb_yolo/runs/smoke_exp_phone_riceseg_preview500_revised_v0_1_sanity_1epoch
+      best_pt: ai_model_training/experiments/phone_rgb_yolo/runs/smoke_exp_phone_riceseg_preview500_revised_v0_1_sanity_1epoch/weights/best.pt
+      last_pt: ai_model_training/experiments/phone_rgb_yolo/runs/smoke_exp_phone_riceseg_preview500_revised_v0_1_sanity_1epoch/weights/last.pt
+      purpose: pipeline_validation_only
+      backend_deployment_allowed: false
+      formal_metric_available: false
+    short_experimental_training:
+      status: complete
+      epochs: 5
+      model: yolov8n
+      run_name: short_exp_phone_riceseg_preview500_revised_v0_1_5epoch
+      run_dir: ai_model_training/experiments/phone_rgb_yolo/runs/short_exp_phone_riceseg_preview500_revised_v0_1_5epoch
+      best_pt: ai_model_training/experiments/phone_rgb_yolo/runs/short_exp_phone_riceseg_preview500_revised_v0_1_5epoch/weights/best.pt
+      last_pt: ai_model_training/experiments/phone_rgb_yolo/runs/short_exp_phone_riceseg_preview500_revised_v0_1_5epoch/weights/last.pt
+      purpose: learning_signal_check_only
+      backend_deployment_allowed: false
+      formal_metric_available: false
+      no_detection_summary: conf025_on_20_test_samples=3_no_detection_images_ratio_0.15;
+        conf010_to_conf001_remove_no_detection_but_raise_box_noise
+      next_allowed_stage: 10_epoch_planning
+    source_rule: riceseg_mask_to_bbox_revised_v0_1
+    allowed_usage:
+    - dataset quality audit
+    - preview expansion evaluation
+    - training readiness planning
+    - dependency preparation
+    - sanity pipeline validation
+    - sanity training planning
+    - short experimental evaluation
+    - 10 epoch planning if explicitly approved
+    forbidden_usage:
+    - direct long training
+    - direct formal training
+    - direct model training
+    - backend upgrade
+    - formal claim
+    - pesticide recommendation
+    - production deployment
+    next_action:
+    - short experimental training planning may begin if explicitly approved
+  phone_riceseg_v35m_holdout_applied:
+    dataset_stage: controlled_experimental_training_dataset
+    machine_check: PASS
+    holdout_applied: true
+    train_val_test_holdout: 348/100/43/9
+    training:
+      phone_35n_10epoch:
+        status: WARNING
+        epochs: 10
+        model: yolov8n
+        run_name: controlled_exp_phone_riceseg_v35m_holdout_applied_10epoch
+        run_dir: F:\学校\病虫害识别\ai_model_training\experiments\phone_rgb_yolo\runs\controlled_exp_phone_riceseg_v35m_holdout_applied_10epoch
+        best_pt: F:\学校\病虫害识别\ai_model_training\experiments\phone_rgb_yolo\runs\controlled_exp_phone_riceseg_v35m_holdout_applied_10epoch\weights\best.pt
+        last_pt: F:\学校\病虫害识别\ai_model_training\experiments\phone_rgb_yolo\runs\controlled_exp_phone_riceseg_v35m_holdout_applied_10epoch\weights\last.pt
+        purpose: controlled_experimental_only
+        backend_deployment_allowed: false
+        formal_metric_available: false
+        holdout_observation_only: true
+        next_allowed_stage: prediction_visual_review
+        forbidden_usage:
+        - backend upgrade
+        - formal claim
+        - pesticide recommendation
+        - direct production deployment
+    allowed_usage:
+    - controlled experimental training reference
+    - validation and inference evidence
+    - prediction visual review preparation
+    - threshold calibration planning
+    forbidden_usage:
+    - backend upgrade
+    - formal claim
+    - pesticide recommendation
+    - direct production deployment
+    next_action:
+    - prediction_visual_review
+    - do not use holdout for tuning
+    prediction_visual_review:
+      phone_35o:
+        status: PREPARED
+        reviewed_count: 0
+        total_review_items: 52
+        gate: PENDING
+        serious_issue_ratio: null
+        next_allowed_stage: pending
+    backend_deployment_allowed: false
+    formal_metric_available: false
+    pesticide_recommendation_allowed: false

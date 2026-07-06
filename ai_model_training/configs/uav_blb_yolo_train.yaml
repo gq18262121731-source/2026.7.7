@@ -1,0 +1,40 @@
+status: smoke_only
+experiment_name: smoke_uav_blb_baseline_v0_1
+model_name: uav_blb_disease_yolo
+model_family: yolo
+task: detect
+
+dataset_root: datasets/rice_uav_ms_blb_preview
+data_yaml: datasets/rice_uav_ms_blb_preview/data.yaml
+dataset_version: rice_uav_ms_blb_preview_v1
+class_count: 1
+classes:
+  - bacterial_leaf_blight
+
+source_type: uav_multispectral
+sensor_type: multispectral_preview_rgb_render
+training_stage: smoke
+category_type: disease
+
+image_size: 320
+batch_size: 2
+epochs: 1
+learning_rate: 0.001
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: experiments/uav_blb_yolo/runs
+seed: 2026
+device: cpu
+workers: 4
+
+early_stopping:
+  enabled: true
+  patience: 20
+
+boundaries:
+  smoke_test_only: true
+  no_formal_metrics: true
+  do_not_replace_backend_weights: true
+  do_not_pollute_rice_panicle_dataset: true
+
+note: "由多光谱 TIF 派生 RGB preview 图进行 YOLO smoke train，不代表正式多光谱模型效果。"

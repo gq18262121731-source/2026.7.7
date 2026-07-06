@@ -1,0 +1,45 @@
+{
+  "info": {
+    "name": "Agri UAV Disease Backend Stage 5",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8000"},
+    {"key": "plotId", "value": "demo_stage5_plot_example"},
+    {"key": "recordId", "value": "demo_stage5_record_example"},
+    {"key": "alertId", "value": "demo_stage5_alert_example"},
+    {"key": "taskId", "value": "batch_example"}
+  ],
+  "item": [
+    {"name": "Status", "request": {"method": "GET", "url": "{{baseUrl}}/api/status"}},
+    {"name": "Models Status", "request": {"method": "GET", "url": "{{baseUrl}}/api/models/status"}},
+    {"name": "Dashboard Summary", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/summary"}},
+    {"name": "Dashboard Plots", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/plots"}},
+    {"name": "Dashboard Plot Detail", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/plots/{{plotId}}"}},
+    {"name": "Dashboard Heatmap", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/heatmap"}},
+    {"name": "Dashboard Disease Statistics", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/disease-statistics"}},
+    {"name": "Dashboard Latest Records", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/latest-records?limit=10"}},
+    {"name": "Dashboard Latest Alerts", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/latest-alerts?limit=10"}},
+    {"name": "Task Status", "request": {"method": "GET", "url": "{{baseUrl}}/api/tasks/{{taskId}}"}},
+    {"name": "Mobile Overview", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/overview?user_id=demo_user"}},
+    {"name": "Mobile Plots", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/plots?user_id=demo_user"}},
+    {"name": "Mobile Plot Detail", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/plots/{{plotId}}"}},
+    {"name": "Mobile Record Detail", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/records/{{recordId}}"}},
+    {"name": "Mobile Alerts", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/alerts"}},
+    {"name": "Mobile Suggestion", "request": {"method": "GET", "url": "{{baseUrl}}/api/mobile/suggestions/{{recordId}}"}},
+    {"name": "Alert List", "request": {"method": "GET", "url": "{{baseUrl}}/api/alerts"}},
+    {
+      "name": "Resolve Alert",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"operator_id\":\"demo_user\",\"operator_name\":\"演示用户\",\"note\":\"已通知农技人员复核\"}"
+        },
+        "url": "{{baseUrl}}/api/alerts/{{alertId}}/resolve"
+      }
+    },
+    {"name": "Alert Actions", "request": {"method": "GET", "url": "{{baseUrl}}/api/alerts/{{alertId}}/actions"}}
+  ]
+}

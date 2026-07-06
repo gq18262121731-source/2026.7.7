@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Smoke 安全演示面板</title>
+  <style>
+    :root {
+      --bg: #f4f7f2;
+      --panel: #fff;
+      --ink: #17211a;
+      --muted: #667267;
+      --line: #d8e0d6;
+      --green: #1e7a46;
+      --leaf: #dbeee1;
+      --amber: #b56a09;
+      --amber-bg: #fff4d8;
+      --red: #b42318;
+      --red-bg: #ffe4df;
+      --blue: #1b5f9e;
+      --blue-bg: #e3f0ff;
+      --gray-bg: #eef1ed;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      line-height: 1.5;
+    }
+    button, input, select { font: inherit; }
+    button {
+      border: 1px solid var(--green);
+      background: var(--green);
+      color: #fff;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button.secondary { background: #fff; color: var(--green); }
+    button.danger { border-color: var(--red); background: var(--red); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 38px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 18px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 14px 0 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .subtitle { color: var(--muted); margin-top: 6px; max-width: 820px; }
+    .ws-status {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: #fff;
+      min-width: 230px;
+      text-align: right;
+    }
+    .grid { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+    .stack { display: grid; gap: 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field { display: grid; gap: 5px; color: var(--muted); font-size: 13px; }
+    .field.full { grid-column: 1 / -1; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .warning-strip {
+      border: 1px solid #e6c25b;
+      background: var(--amber-bg);
+      color: #5f3904;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-weight: 600;
+    }
+    .error-strip { border-color: #f2b8af; background: var(--red-bg); color: var(--red); }
+    .model-grid { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 10px; }
+    .model-tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcfa; min-height: 150px; }
+    .tile-title { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-weight: 700; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 8px; min-height: 24px; background: var(--gray-bg); color: #3b443d; font-size: 12px; border: 1px solid transparent; }
+    .badge.smoke { background: var(--amber-bg); color: var(--amber); border-color: #efcf75; }
+    .badge.mock { background: var(--red-bg); color: var(--red); border-color: #f2b8af; }
+    .badge.crop { background: var(--blue-bg); color: var(--blue); border-color: #b6d7ff; }
+    .badge.disease { background: var(--leaf); color: var(--green); border-color: #b8dec5; }
+    .badge.metric { background: #f7e8ef; color: #8a184c; border-color: #e8bdd0; }
+    .records-grid { display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+    .record-list { display: grid; gap: 8px; max-height: 580px; overflow: auto; padding-right: 2px; }
+    .record-button { width: 100%; text-align: left; color: var(--ink); background: #fff; border: 1px solid var(--line); padding: 10px; border-radius: 8px; }
+    .record-button.active { border-color: var(--green); box-shadow: 0 0 0 2px rgba(30, 122, 70, .15); }
+    .record-title { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-weight: 700; }
+    .record-detail { min-height: 360px; }
+    .detail-layout { display: grid; grid-template-columns: minmax(240px, 42%) minmax(0, 1fr); gap: 14px; }
+    .result-image { width: 100%; border: 1px solid var(--line); border-radius: 8px; aspect-ratio: 4 / 3; object-fit: contain; background: #eef1ed; }
+    .kv { display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr); gap: 6px 10px; font-size: 14px; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; overflow-wrap: anywhere; }
+    .section-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 360px); gap: 12px; margin-top: 12px; }
+    .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table th, .table td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
+    .table th { color: var(--muted); font-weight: 600; }
+    .mobile-preview { max-width: 390px; margin: 0 auto; border: 1px solid var(--line); border-radius: 8px; background: #fdfefd; overflow: hidden; }
+    .mobile-head { padding: 12px; background: var(--green); color: #fff; font-weight: 700; }
+    .mobile-body { padding: 12px; display: grid; gap: 10px; }
+    .empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 18px; text-align: center; background: #fbfcfa; }
+    .log-list { display: grid; gap: 6px; max-height: 260px; overflow: auto; }
+    .log-item { border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; background: #fbfcfa; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+    .ai-report { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fbfcfa; }
+    .ai-report-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .ai-report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .ai-report-section { border-top: 1px solid var(--line); padding-top: 10px; }
+    .ai-report-section ul { margin: 6px 0 0; padding-left: 20px; }
+    .source-list { display: grid; gap: 6px; margin-top: 6px; }
+    .source-item { border: 1px solid var(--line); border-radius: 6px; padding: 8px; background: #fff; overflow-wrap: anywhere; }
+    .dry-run-media { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .dry-run-media figure { margin: 0; display: grid; gap: 6px; }
+    .dry-run-media figcaption { color: var(--muted); font-size: 13px; }
+    .dry-run-media img { width: 100%; border: 1px solid var(--line); border-radius: 8px; aspect-ratio: 1 / 1; object-fit: contain; background: #eef1ed; }
+    @media (max-width: 1050px) {
+      .grid, .records-grid, .detail-layout, .section-split { grid-template-columns: 1fr; }
+      .ai-report-grid { grid-template-columns: 1fr; }
+      .model-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+      .dry-run-media { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 650px) {
+      .shell { padding: 12px; }
+      .topbar { display: grid; }
+      .ws-status { text-align: left; min-width: 0; }
+      .form-grid, .model-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+      .kv { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>三下乡水稻病虫害识别 Smoke 安全演示面板</h1>
+        <p class="subtitle">默认仅加载模型状态与演示安全规则。历史记录、大屏统计和 WebSocket 均由用户手动触发，避免页面打开时产生高负载。</p>
+      </div>
+      <div class="ws-status" id="wsStatus">WebSocket：未连接</div>
+    </header>
+
+    <div class="grid">
+      <aside class="stack">
+        <section class="panel">
+          <h2>上传测试入口</h2>
+          <form id="uploadForm" class="form-grid">
+            <label class="field full">图片文件<input id="fileInput" type="file" accept="image/*"></label>
+            <label class="field">source_type<select id="sourceType"><option value="phone_rgb">phone_rgb</option><option value="uav_rgb">uav_rgb</option><option value="uav_multispectral">uav_multispectral</option></select></label>
+            <label class="field">model_hint<select id="modelHint"><option value="">空</option><option value="uav_blb">uav_blb</option></select></label>
+            <label class="field">target_type<select id="targetType"><option value="">空</option><option value="disease">disease</option></select></label>
+            <label class="field">plot_id<input id="plotId" value="demo_smoke_plot"></label>
+            <label class="field">plot_name<input id="plotName" value="Smoke 演示地块"></label>
+            <div class="field full"><div class="warning-strip">该模型为 smoke 权重，不代表正式模型效果；UAV 默认不传 hint 时展示为稻穗辅助目标检测。</div></div>
+            <div class="actions field full">
+              <button id="uploadBtn" type="submit">上传并识别</button>
+              <button id="refreshModelsBtn" type="button" class="secondary">刷新模型状态</button>
+              <button id="loadDataBtn" type="button" class="secondary">刷新数据</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel" id="dryRunPanel">
+          <h2>UAV BLB 多光谱分割实验结果</h2>
+          <div class="badges">
+            <span class="badge smoke">Experimental</span>
+            <span class="badge metric">Dry-run only</span>
+            <span class="badge disease">Formal candidate</span>
+            <span class="badge mock">Not production</span>
+          </div>
+          <p class="subtitle">仅支持 5-band / multispectral TIF；RGB 图片不支持，输入错误时展示 INVALID_MULTISPECTRAL_TIF，不 fallback 到 RGB 或 YOLO bbox。</p>
+          <form id="dryRunForm" class="form-grid" style="margin-top: 12px;">
+            <label class="field full">5-band multispectral TIF<input id="dryRunFileInput" type="file" accept=".tif,.tiff,image/tiff"></label>
+            <div class="field full"><div class="warning-strip">该结果仅用于实验性 dry-run 展示，不作为正式病害识别结论，不进入统计或告警。</div></div>
+            <div class="actions field full">
+              <button id="dryRunBtn" type="submit">运行 dry-run 分割</button>
+            </div>
+          </form>
+          <div id="dryRunResult" class="stack" style="margin-top: 12px;">
+            <div class="empty">尚未运行 dry-run。请选择 5-band multispectral TIF。</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>WebSocket 手动控制</h2>
+          <div class="actions">
+            <button id="connectWsBtn" type="button">连接 WebSocket</button>
+            <button id="disconnectWsBtn" type="button" class="danger" disabled>断开 WebSocket</button>
+          </div>
+          <p class="subtitle">默认不连接，不启用无限重连；新结果最多保留 10 条，日志最多 30 条。</p>
+        </section>
+
+        <section class="panel">
+          <h2>演示安全规则</h2>
+          <div id="demoSafety" class="stack"><div class="empty">正在读取 /api/models/demo-safety ...</div></div>
+        </section>
+
+        <section class="panel">
+          <h2>页面日志</h2>
+          <div id="pageLog" class="log-list"></div>
+        </section>
+      </aside>
+
+      <section class="stack">
+        <section class="panel">
+          <h2>模型状态</h2>
+          <div id="routing" class="warning-strip">正在读取 /api/models/status ...</div>
+          <div id="modelGrid" class="model-grid" style="margin-top: 12px;"></div>
+        </section>
+
+        <section class="panel">
+          <h2>大屏统计保护</h2>
+          <div class="actions"><button id="loadDashboardBtn" type="button" class="secondary">加载大屏统计</button></div>
+          <div class="section-split">
+            <div>
+              <table class="table">
+                <thead><tr><th>病害统计榜</th><th>次数</th><th>最高风险</th></tr></thead>
+                <tbody id="diseaseStatsBody"><tr><td colspan="3">尚未加载；crop_object 不进入病害统计榜。</td></tr></tbody>
+              </table>
+            </div>
+            <div class="stack"><div id="dashboardSummary" class="empty">尚未加载大屏汇总。</div><div id="latestAlerts" class="empty">尚未加载病虫害预警。</div></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>识别结果与历史记录</h2>
+          <div class="actions"><button id="loadRecordsBtn" type="button" class="secondary">加载历史记录</button></div>
+          <div class="records-grid">
+            <div id="recordList" class="record-list"><div class="empty">尚未加载；最多展示 20 条。</div></div>
+            <div id="recordDetail" class="record-detail"><div class="empty">点击一条记录后再加载详情。</div></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>移动端详情预览</h2>
+          <div id="mobilePreview" class="mobile-preview"><div class="mobile-head">移动端详情</div><div class="mobile-body"><div class="empty">点击一条记录后只加载当前记录的 mobile detail。</div></div></div>
+        </section>
+
+        <section class="panel">
+          <h2>WebSocket 新结果</h2>
+          <div id="wsLatest" class="stack"><div class="empty">默认不连接；手动连接后最多保留 10 条新结果。</div></div>
+          <h3 style="margin-top: 12px;">WebSocket 日志</h3>
+          <div id="wsLog" class="log-list"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const MAX_WS_RECONNECT = 3;
+    const MAX_RECORDS_RENDER = 20;
+    const MAX_WS_RESULTS = 10;
+    const MAX_LOG_LINES = 50;
+    const MAX_WS_LOG_LINES = 30;
+    const REQUEST_TIMEOUT_MS = 8000;
+
+    const state = {
+      records: [],
+      selectedRecordId: null,
+      ws: null,
+      wsConnected: false,
+      wsReconnectCount: 0,
+      wsResults: [],
+      pageLogs: [],
+      wsLogs: [],
+      aiReports: new Map(),
+      lastPageLogMessage: "",
+      lastPageLogAt: 0,
+      inFlight: new Map(),
+      autoReconnect: false,
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const apiBase = window.location.origin;
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function text(value, fallback = "无") {
+      if (value === null || value === undefined || value === "") return fallback;
+      return String(value);
+    }
+
+    function yesNo(value) {
+      return value ? "是" : "否";
+    }
+
+    function capList(list, maxCount) {
+      return Array.isArray(list) ? list.slice(0, maxCount) : [];
+    }
+
+    function pickModelFields(result) {
+      const safe = normalizeDetectionResult(result);
+      return {
+        record_id: safe.record_id,
+        model_display_name: safe.model_display_name,
+        model_stage: safe.model_stage,
+        model_warning: safe.model_warning,
+        current_target_type: safe.current_target_type,
+        fallback_to_mock: safe.fallback_to_mock,
+        formal_metric_available: safe.formal_metric_available,
+        is_smoke: safe.is_smoke,
+        model_name: safe.model_name,
+        source_type: safe.source_type,
+      };
+    }
+
+    function isMockResult(raw) {
+      if (!raw || typeof raw !== "object") return false;
+      const modelStage = text(raw.model_stage, "").toLowerCase();
+      const modelName = text(raw.model_name, "").toLowerCase();
+      const displayName = text(raw.model_display_name, "");
+      return raw.fallback_to_mock === true
+        || modelStage === "mock"
+        || modelName === "mock_disease_detector"
+        || displayName.includes("Mock");
+    }
+
+    function normalizeDetectionResult(result) {
+      const raw = result && typeof result === "object" ? result : {};
+      const summary = raw.summary && typeof raw.summary === "object" ? raw.summary : {};
+      const isMock = isMockResult(raw);
+      return {
+        record_id: text(raw.record_id, "unknown_record"),
+        image_url: text(raw.image_url, ""),
+        result_image_url: text(raw.result_image_url, ""),
+        plot_id: text(raw.plot_id, ""),
+        plot_name: text(raw.plot_name, ""),
+        timestamp: text(raw.timestamp, ""),
+        source_type: text(raw.source_type, "unknown"),
+        model_name: text(raw.model_name, "unknown_model"),
+        model_version: text(raw.model_version, "unknown_version"),
+        detector_mode: text(raw.detector_mode, "unknown"),
+        is_smoke: Boolean(raw.is_smoke),
+        model_stage: text(raw.model_stage, raw.is_smoke ? "smoke" : "unknown"),
+        formal_metric_available: raw.formal_metric_available === true,
+        current_target_type: text(raw.current_target_type, "unknown"),
+        fallback_to_mock: isMock || Boolean(raw.fallback_to_mock),
+        model_hint: text(raw.model_hint, "空"),
+        target_type: text(raw.target_type, "空"),
+        model_display_name: text(raw.model_display_name, raw.model_name || "未知模型"),
+        model_warning: text(raw.model_warning, "暂无模型警示文案"),
+        model_usage_scope: text(raw.model_usage_scope, ""),
+        model_capability_level: text(raw.model_capability_level, ""),
+        summary: {
+          main_disease: text(summary.main_disease, "无"),
+          risk_level: text(summary.risk_level, raw.risk_level || "normal"),
+          severity: text(summary.severity, raw.severity || "无病"),
+          max_confidence: Number(summary.max_confidence || 0),
+        },
+        detections: Array.isArray(raw.detections) ? raw.detections : [],
+      };
+    }
+
+    function targetLabel(result) {
+      const record = normalizeDetectionResult(result);
+      if (record.fallback_to_mock) return "模拟结果";
+      if (record.current_target_type === "crop_object") return "辅助目标检测";
+      if (record.current_target_type === "disease") return "病害识别";
+      return "未标明目标类型";
+    }
+
+    function renderModelBadge(result) {
+      const record = normalizeDetectionResult(result);
+      const badges = [];
+      if (record.fallback_to_mock) {
+        badges.push(["mock", "Mock 兜底结果"]);
+        badges.push(["metric", "暂无正式模型指标"]);
+        return `<div class="badges">${badges.map(([kind, label]) => `<span class="badge ${kind}">${escapeHtml(label)}</span>`).join("")}</div>`;
+      }
+      if (record.is_smoke) badges.push(["smoke", "小样本 smoke，仅验证链路"]);
+      if (record.current_target_type === "crop_object") badges.push(["crop", "辅助目标检测，不是病害识别"]);
+      if (record.current_target_type === "disease") badges.push(["disease", "病害识别"]);
+      if (record.model_name === "uav_blb_disease_yolo") badges.push(["disease", "UAV 白叶枯病 smoke 模型"]);
+      if (record.formal_metric_available === false) badges.push(["metric", "暂无正式模型指标"]);
+      return `<div class="badges">${badges.map(([kind, label]) => `<span class="badge ${kind}">${escapeHtml(label)}</span>`).join("")}</div>`;
+    }
+
+    function diseaseIdFromText(value) {
+      const raw = text(value, "").toLowerCase();
+      if (!raw) return "";
+      if (raw.includes("bacterial_leaf_blight") || raw.includes("uav_blb") || raw.includes("blb") || raw.includes("白叶枯")) return "bacterial_leaf_blight";
+      if (raw.includes("rice_blast") || raw.includes("leaf_blast") || raw.includes("blast") || raw.includes("稻瘟")) return "rice_blast";
+      if (raw.includes("brown_spot") || raw.includes("brown spot") || raw.includes("褐斑")) return "brown_spot";
+      if (raw.includes("tungro") || raw.includes("东格鲁")) return "tungro";
+      return "";
+    }
+
+    function inferDiseaseId(record) {
+      const candidates = [
+        record.summary?.main_disease,
+        record.model_hint,
+        record.model_name,
+        record.model_display_name,
+        ...(Array.isArray(record.detections) ? record.detections.map((item) => item.label || item.class_name || item.category) : []),
+      ];
+      for (const candidate of candidates) {
+        const diseaseId = diseaseIdFromText(candidate);
+        if (diseaseId) return diseaseId;
+      }
+      return "";
+    }
+
+    function inferModelClass(record) {
+      const detection = Array.isArray(record.detections) && record.detections.length ? record.detections[0] : {};
+      return text(detection.label || detection.class_name || detection.category || record.summary?.main_disease || record.model_hint || record.model_name, "unknown_model_class");
+    }
+
+    function inferSourceType(record) {
+      const source = text(record.source_type, "mock").toLowerCase();
+      if (source.includes("uav")) return "uav";
+      if (source.includes("phone") || source.includes("manual_upload")) return "phone";
+      if (record.fallback_to_mock || record.detector_mode === "mock") return "mock";
+      return source || "mock";
+    }
+
+    function buildAgentReportPayload(record) {
+      const diseaseId = inferDiseaseId(record);
+      return {
+        record_id: record.record_id || null,
+        field_id: record.field_id || null,
+        plot_id: record.plot_id || null,
+        uav_task_id: record.uav_task_id || null,
+        abnormal_region_id: record.abnormal_region_id || null,
+        disease_id: diseaseId || "",
+        model_class: diseaseId || inferModelClass(record),
+        confidence: Number(record.summary?.max_confidence || 0) || null,
+        source_type: inferSourceType(record),
+        risk_level: record.summary?.risk_level || "",
+        severity: record.summary?.severity || "",
+        user_question: "请根据当前识别结果生成辅助诊断解释。",
+      };
+    }
+
+    function renderTextList(items) {
+      const safeItems = Array.isArray(items) ? items : [];
+      return safeItems.length
+        ? `<ul>${safeItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        : `<p class="subtitle">暂无。</p>`;
+    }
+
+    function renderEvidenceSources(sources) {
+      const safeSources = Array.isArray(sources) ? sources : [];
+      if (!safeSources.length) return `<p class="subtitle">暂无证据来源。</p>`;
+      return `<div class="source-list">${safeSources.map((source) => `<div class="source-item"><strong>${escapeHtml(text(source.source_title, source.source_id))}</strong><div class="badges"><span class="badge disease">${escapeHtml(text(source.authority_level, "未知等级"))}</span><span class="badge metric">${escapeHtml(text(source.source_type, "未知类型"))}</span></div><p class="subtitle">${escapeHtml(text(source.url_or_reference, ""))}</p></div>`).join("")}</div>`;
+    }
+
+    function renderAiReportPanel(record, status = "empty", report = null, message = "") {
+      const cached = state.aiReports.get(record.record_id);
+      const activeReport = report || cached || null;
+      const isLoading = status === "loading";
+      const hasReport = status === "success" && activeReport;
+      const buttonLabel = isLoading ? "正在生成 AI 解读..." : hasReport ? "重新生成 AI 诊断解释" : "生成 AI 诊断解释";
+      const safetyText = "本 AI 解读基于图像识别结果、知识图谱和本地 RAG 知识库生成，仅用于辅助判断，不替代农业专家现场诊断。";
+      const boundaryText = "当前系统处于 mock / smoke / experimental 阶段，结果不应作为正式生产诊断依据。";
+      const pesticideText = "具体药剂、浓度和施用时间应以当地农业技术部门建议和产品标签为准。";
+      const quickQuestions = [
+        "这个识别结果可靠吗，哪些因素可能导致误判？",
+        "当前知识库能不能支持判断这是白叶枯？",
+        "我需要补拍什么样的图片才能提高复核可信度？",
+        "当前回答用了哪些数据作为依据？",
+      ];
+      const activeQuestion = activeReport?.question || "";
+      const qaControls = `<div class="ai-report-section"><h3>AI 巡检问答</h3><textarea id="aiQuestionInput" rows="3" placeholder="围绕当前记录、地块、UAV 任务、异常区和知识库自由提问">${escapeHtml(activeQuestion)}</textarea><div class="chip-row">${quickQuestions.map((item) => `<button class="quickQuestionChip" type="button" data-question="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join("")}</div></div>`;
+      const suspected = activeReport?.suspected_disease || {};
+      let body = `<div class="empty">尚未生成 AI 解读。点击按钮后调用 kg-rag-agent experimental API。</div>`;
+      if (status === "loading") body = `<div class="empty">正在生成 AI 解读...</div>`;
+      if (status === "error") body = `<div class="warning-strip error-strip">${escapeHtml(message || "AI 解读生成失败，请确认后端 kg-rag-agent experimental API 是否正常运行。")}</div>`;
+      if (hasReport && activeReport.mode === "free_qa") {
+        body = `
+          <div class="ai-report-section"><h3>用户原始问题</h3><p>${escapeHtml(text(activeReport.question, ""))}</p></div>
+          <div class="ai-report-section"><h3>AI 回答</h3><p>${escapeHtml(text(activeReport.answer || activeReport.knowledge_summary, ""))}</p></div>
+          <div class="ai-report-section"><h3>依据</h3>${renderTextList(activeReport.basis)}</div>
+          <div class="ai-report-section"><h3>不确定性</h3>${renderTextList(activeReport.uncertainty || activeReport.uncertainty_notes)}</div>
+          <div class="ai-report-section"><h3>下一步建议</h3>${renderTextList(activeReport.next_steps || activeReport.management_suggestions)}</div>
+          <div class="ai-report-section"><h3>安全边界提示</h3><p>${escapeHtml(text(activeReport.safety_notice, "该回答用于巡检辅助，不作为正式农艺诊断或用药处方。"))}</p></div>
+          <div class="ai-report-section"><h3>知识依据</h3>${renderTextList((activeReport.retrieved_knowledge || []).map((item) => `${item.title || item.source_id || "knowledge"} / ${item.disease_id || "unknown"} / ${item.section_type || "unknown"}`))}</div>`;
+      } else if (hasReport && activeReport.insufficient_evidence) {
+        body = `<div class="warning-strip error-strip">当前知识库证据不足，无法生成可靠解释。</div><div class="ai-report-section"><h3>模型结果摘要</h3><p>${escapeHtml(text(activeReport.model_result_summary))}</p></div><div class="ai-report-section"><h3>模型边界与不确定性说明</h3>${renderTextList(activeReport.uncertainty_notes)}</div>`;
+      } else if (hasReport) {
+        body = `
+          <div class="ai-report-grid">
+            <div><h3>疑似病害</h3><p>${escapeHtml(text(suspected.zh_name || suspected.disease_id, "未明确"))}</p><p class="subtitle">${escapeHtml(text(suspected.en_name, ""))}</p></div>
+            <div><h3>风险等级</h3><span class="badge ${activeReport.risk_level === "high" ? "mock" : "smoke"}">${escapeHtml(text(activeReport.risk_level, "unknown"))}</span></div>
+          </div>
+          <div class="ai-report-section"><h3>模型结果摘要</h3><p>${escapeHtml(text(activeReport.model_result_summary))}</p></div>
+          <div class="ai-report-section"><h3>病害知识解释</h3><p>${escapeHtml(text(activeReport.knowledge_summary))}</p></div>
+          <div class="ai-report-section"><h3>人工复核问题</h3>${renderTextList(activeReport.manual_check_questions)}</div>
+          <div class="ai-report-section"><h3>处置建议</h3>${renderTextList(activeReport.management_suggestions)}</div>
+          <div class="ai-report-section"><h3>证据来源</h3>${renderEvidenceSources(activeReport.evidence_sources)}</div>
+          <div class="ai-report-section"><h3>模型边界与不确定性说明</h3>${renderTextList(activeReport.uncertainty_notes)}</div>`;
+      }
+      return `<section class="ai-report" id="aiReportPanel"><div class="ai-report-head"><h3>AI 智能解读</h3><button id="generateAiReportBtn" type="button" ${isLoading ? "disabled" : ""}>${escapeHtml(buttonLabel)}</button></div><div class="warning-strip">${escapeHtml(safetyText)}</div><p class="subtitle" style="margin-top: 8px;">${escapeHtml(boundaryText)}</p><p class="subtitle">${escapeHtml(pesticideText)}</p><div style="margin-top: 10px;">${body}</div></section>`;
+    }
+
+    async function generateAiReport(record) {
+      const input = $("aiQuestionInput");
+      const userQuestion = input ? input.value.trim() : "";
+      if (!userQuestion) {
+        const panel = $("aiReportPanel");
+        if (panel) panel.outerHTML = renderAiReportPanel(record, "error", null, "请输入一个巡检问题后再发送。");
+        bindAiReportButton(record);
+        return;
+      }
+      const panel = $("aiReportPanel");
+      if (panel) panel.outerHTML = renderAiReportPanel(record, "loading");
+      const payload = buildAgentReportPayload(record);
+      payload.user_question = userQuestion;
+      const report = await safeFetchJson(
+        "/api/agent/diagnosis-report",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+        `agent-report-${record.record_id}`,
+      );
+      const currentPanel = $("aiReportPanel");
+      if (!report) {
+        if (currentPanel) currentPanel.outerHTML = renderAiReportPanel(record, "error", null, "AI 解读生成失败，请确认后端 kg-rag-agent experimental API 是否正常运行。");
+      } else {
+        state.aiReports.set(record.record_id, report);
+        if (currentPanel) currentPanel.outerHTML = renderAiReportPanel(record, "success", report);
+        addPageLog(`已生成 AI 解读：${record.record_id}`);
+      }
+      bindAiReportButton(record);
+    }
+
+    function bindAiReportButton(record) {
+      const button = $("generateAiReportBtn");
+      if (!button) return;
+      const panel = $("aiReportPanel");
+      if (panel && !$("aiQuestionInput")) {
+        const questions = [
+          "为什么这个异常区 UAV 显示中风险，但手机近景识别置信度不高？",
+          "这个识别结果可靠吗，哪些因素可能导致误判？",
+          "当前知识库能不能支持判断这是白叶枯？",
+          "我需要补拍什么样的图片才能提高复核可信度？",
+          "当前回答用了哪些数据作为依据？",
+        ];
+        button.parentElement.insertAdjacentHTML(
+          "afterend",
+          `<div class="ai-report-section"><h3>AI 巡检问答</h3><textarea id="aiQuestionInput" rows="3" placeholder="围绕当前记录、地块、UAV 任务、异常区和知识库自由提问"></textarea><div class="chip-row">${questions.map((item) => `<button class="quickQuestionChip" type="button" data-question="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join("")}</div></div>`,
+        );
+        const cached = state.aiReports.get(record.record_id);
+        const input = $("aiQuestionInput");
+        if (input && cached?.question) input.value = cached.question;
+      }
+      document.querySelectorAll(".quickQuestionChip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const input = $("aiQuestionInput");
+          if (input) input.value = chip.dataset.question || "";
+          generateAiReport(record);
+        });
+      });
+      button.addEventListener("click", () => generateAiReport(record), { once: true });
+    }
+
+    function showError(targetId, message) {
+      const el = $(targetId);
+      if (el) el.innerHTML = `<div class="warning-strip error-strip">${escapeHtml(message)}</div>`;
+    }
+
+    function addPageLog(message) {
+      const now = Date.now();
+      if (message === state.lastPageLogMessage && now - state.lastPageLogAt < 2000) {
+        return;
+      }
+      state.lastPageLogMessage = message;
+      state.lastPageLogAt = now;
+      state.pageLogs.unshift(`${new Date().toLocaleTimeString()} ${message}`);
+      state.pageLogs = capList(state.pageLogs, MAX_LOG_LINES);
+      const el = $("pageLog");
+      if (el) el.innerHTML = state.pageLogs.map((item) => `<div class="log-item">${escapeHtml(item)}</div>`).join("");
+    }
+
+    function addWsLog(message) {
+      state.wsLogs.unshift(`${new Date().toLocaleTimeString()} ${message}`);
+      state.wsLogs = capList(state.wsLogs, MAX_WS_LOG_LINES);
+      const el = $("wsLog");
+      if (el) el.innerHTML = state.wsLogs.map((item) => `<div class="log-item">${escapeHtml(item)}</div>`).join("");
+    }
+
+    async function safeFetchJson(path, options = {}, key = path) {
+      if (state.inFlight.has(key)) {
+        addPageLog(`跳过重复请求：${key}`);
+        return null;
+      }
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      state.inFlight.set(key, controller);
+      try {
+        const response = await fetch(`${apiBase}${path}`, { ...options, signal: controller.signal });
+        if (!response.ok) {
+          const body = await response.text().catch(() => "");
+          throw new Error(`${path} ${response.status}: ${body.slice(0, 240)}`);
+        }
+        return await response.json();
+      } catch (error) {
+        const message = error && error.name === "AbortError" ? `${path} 请求超时` : text(error && error.message, `${path} 请求失败`);
+        addPageLog(message);
+        return null;
+      } finally {
+        window.clearTimeout(timeoutId);
+        state.inFlight.delete(key);
+      }
+    }
+
+    function modelTile(model, routeName) {
+      if (!model || typeof model !== "object") return "";
+      const pseudoRecord = normalizeDetectionResult({
+        is_smoke: model.is_smoke,
+        model_stage: model.model_stage,
+        formal_metric_available: model.formal_metric_available,
+        current_target_type: model.current_target_type,
+        fallback_to_mock: model.name === "mock_disease_detector",
+        model_name: model.name,
+        model_display_name: model.display_name || routeName,
+        model_warning: model.warning,
+      });
+      return `
+        <article class="model-tile">
+          <div class="tile-title">
+            <span>${escapeHtml(model.display_name || routeName)}</span>
+            <span class="badge ${model.ready || model.loaded ? "disease" : "mock"}">${escapeHtml(model.loaded ? "loaded" : model.ready ? "ready" : "fallback")}</span>
+          </div>
+          <dl class="kv">
+            <dt>模型</dt><dd>${escapeHtml(text(model.name))}</dd>
+            <dt>阶段</dt><dd>${escapeHtml(text(model.model_stage))}</dd>
+            <dt>目标</dt><dd>${escapeHtml(text(model.current_target_type))}</dd>
+            <dt>正式指标</dt><dd>${escapeHtml(yesNo(model.formal_metric_available))}</dd>
+          </dl>
+          ${renderModelBadge(pseudoRecord)}
+          <p class="subtitle" style="margin-top: 8px;">${escapeHtml(text(model.warning, ""))}</p>
+        </article>`;
+    }
+
+    async function loadModelStatus() {
+      const [status, safety] = await Promise.all([
+        safeFetchJson("/api/models/status", {}, "models-status"),
+        safeFetchJson("/api/models/demo-safety", {}, "demo-safety"),
+      ]);
+      if (!status || !safety) {
+        showError("routing", "模型状态或演示安全规则读取失败；不会自动重试。");
+        return;
+      }
+      $("routing").innerHTML = `当前路由：phone_rgb/manual_upload -> phone smoke；UAV 默认 -> rice_panicle crop_object smoke；UAV + model_hint=uav_blb 或 target_type=disease -> UAV BLB disease smoke；不可用时 -> Mock fallback。formal_metric_available=${escapeHtml(String(status.demo_safety?.formal_metric_available ?? safety.formal_metric_available))}`;
+      const models = status.models || {};
+      $("modelGrid").innerHTML = [
+        modelTile(models.phone_model || status.phone_model, "phone smoke"),
+        modelTile(models.uav_crop_model || status.uav_crop_model, "UAV crop smoke"),
+        modelTile(models.uav_blb_model || status.uav_blb_model, "UAV BLB smoke"),
+        modelTile(models.mock_model || status.mock_model, "Mock fallback"),
+      ].join("");
+      $("demoSafety").innerHTML = `
+        <div class="badges"><span class="badge smoke">has_smoke_models=${escapeHtml(String(Boolean(safety.has_smoke_models)))}</span><span class="badge metric">formal_metric_available=${escapeHtml(String(Boolean(safety.formal_metric_available)))}</span><span class="badge mock">has_formal_models=${escapeHtml(String(Boolean(safety.has_formal_models)))}</span></div>
+        <h3>Warnings</h3>${capList(safety.warnings || [], 10).map((item) => `<p class="subtitle">${escapeHtml(item)}</p>`).join("")}
+        <h3>Display Rules</h3>${capList(safety.display_rules || [], 10).map((item) => `<p class="subtitle">${escapeHtml(item)}</p>`).join("")}`;
+      addPageLog("已加载模型状态和演示安全规则。");
+    }
+
+    async function loadDashboard() {
+      const [summary, stats, alerts] = await Promise.all([
+        safeFetchJson("/api/dashboard/summary", {}, "dashboard-summary"),
+        safeFetchJson("/api/dashboard/disease-statistics", {}, "disease-statistics"),
+        safeFetchJson("/api/dashboard/latest-alerts?limit=5", {}, "latest-alerts"),
+      ]);
+      if (!summary || !stats || !alerts) {
+        showError("dashboardSummary", "大屏统计读取失败；不会自动重试。");
+        return;
+      }
+      const statItems = Array.isArray(stats.items) ? stats.items : [];
+      $("diseaseStatsBody").innerHTML = statItems.length
+        ? capList(statItems, 20).map((item) => `<tr><td>${escapeHtml(text(item.label))}</td><td>${escapeHtml(text(item.count, "0"))}</td><td>${escapeHtml(text(item.risk_level_max, "normal"))}</td></tr>`).join("")
+        : `<tr><td colspan="3">暂无病害统计；crop_object 不进入此榜单。</td></tr>`;
+      $("dashboardSummary").innerHTML = `<h3>汇总</h3><dl class="kv"><dt>总记录</dt><dd>${escapeHtml(text(summary.total_record_count, "0"))}</dd><dt>病害记录</dt><dd>${escapeHtml(text(summary.disease_record_count, "0"))}</dd><dt>高风险地块</dt><dd>${escapeHtml(text(summary.high_risk_plot_count, "0"))}</dd><dt>中风险地块</dt><dd>${escapeHtml(text(summary.medium_risk_plot_count, "0"))}</dd></dl>`;
+      const alertItems = Array.isArray(alerts.items) ? alerts.items : [];
+      $("latestAlerts").innerHTML = alertItems.length
+        ? `<h3>最新病虫害预警</h3>${capList(alertItems, 5).map((item) => `<p class="subtitle">${escapeHtml(text(item.plot_name || item.plot_id, "未知地块"))}：${escapeHtml(text(item.main_disease, "未命名"))} ${renderModelBadge(item)}</p>`).join("")}`
+        : `<p class="subtitle">暂无病虫害预警；crop_object 记录不会生成病虫害 alert。</p>`;
+      addPageLog("已手动加载大屏统计。");
+    }
+
+    async function loadRecords(preferRecordId) {
+      const data = await safeFetchJson("/api/records?page=1&page_size=20&sort=created_at_desc", {}, "records");
+      if (!data) {
+        showError("recordList", "历史记录读取失败；不会自动重试。");
+        return;
+      }
+      state.records = capList(Array.isArray(data.items) ? data.items.map(normalizeDetectionResult) : [], MAX_RECORDS_RENDER);
+      state.selectedRecordId = preferRecordId || state.selectedRecordId || null;
+      renderRecordList();
+      addPageLog(`已手动加载历史记录 ${state.records.length} 条。`);
+    }
+
+    function renderRecordList() {
+      $("recordList").innerHTML = state.records.length
+        ? state.records.map((record) => `<button class="record-button ${record.record_id === state.selectedRecordId ? "active" : ""}" type="button" data-record-id="${escapeHtml(record.record_id)}"><div class="record-title"><span>${escapeHtml(targetLabel(record))}</span><span>${escapeHtml(record.summary.risk_level)}</span></div><div>${escapeHtml(record.model_display_name)}</div>${renderModelBadge(record)}</button>`).join("")
+        : `<div class="empty">暂无识别记录。最多展示 20 条，不会自动请求 mobile detail。</div>`;
+      document.querySelectorAll("[data-record-id]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          state.selectedRecordId = button.dataset.recordId || null;
+          renderRecordList();
+          await renderSelectedRecord();
+        }, { once: true });
+      });
+    }
+
+    async function renderSelectedRecord() {
+      if (!state.selectedRecordId) return;
+      const record = await safeFetchJson(`/api/records/${encodeURIComponent(state.selectedRecordId)}`, {}, `record-${state.selectedRecordId}`);
+      if (!record) {
+        showError("recordDetail", "记录详情读取失败；不会自动重试。");
+        return;
+      }
+      renderRecordDetail(record);
+      await renderMobilePreview(state.selectedRecordId);
+    }
+
+    function renderRecordDetail(rawRecord) {
+      const record = normalizeDetectionResult(rawRecord);
+      const mainTarget = record.current_target_type === "crop_object" ? "辅助目标，不作为病害展示" : record.summary.main_disease;
+      const cachedReport = state.aiReports.get(record.record_id);
+      $("recordDetail").innerHTML = `<div class="detail-layout"><div class="stack">${record.result_image_url ? `<img class="result-image" src="${escapeHtml(record.result_image_url)}" alt="识别结果图">` : `<div class="empty">无结果图</div>`}${renderModelBadge(record)}<div class="warning-strip">${escapeHtml(record.model_warning)}</div></div><div class="stack"><h3>${escapeHtml(targetLabel(record))}</h3><dl class="kv"><dt>model_display_name</dt><dd>${escapeHtml(record.model_display_name)}</dd><dt>model_stage</dt><dd>${escapeHtml(record.model_stage)}</dd><dt>current_target_type</dt><dd>${escapeHtml(record.current_target_type)}</dd><dt>fallback_to_mock</dt><dd>${escapeHtml(yesNo(record.fallback_to_mock))}</dd><dt>formal_metric_available</dt><dd>${escapeHtml(yesNo(record.formal_metric_available))}</dd><dt>model_name</dt><dd>${escapeHtml(record.model_name)}</dd><dt>source_type</dt><dd>${escapeHtml(record.source_type)}</dd><dt>main_target</dt><dd>${escapeHtml(mainTarget)}</dd></dl></div></div>${renderAiReportPanel(record, cachedReport ? "success" : "empty", cachedReport)}`;
+      bindAiReportButton(record);
+    }
+
+    async function renderMobilePreview(recordId) {
+      const record = await safeFetchJson(`/api/mobile/records/${encodeURIComponent(recordId)}`, {}, `mobile-record-${recordId}`);
+      if (!record) {
+        showError("mobilePreview", "移动端详情读取失败；不会自动重试。");
+        return;
+      }
+      const safe = normalizeDetectionResult(record);
+      $("mobilePreview").innerHTML = `<div class="mobile-head">${escapeHtml(targetLabel(safe))}</div><div class="mobile-body">${safe.result_image_url ? `<img class="result-image" src="${escapeHtml(safe.result_image_url)}" alt="移动端结果图">` : `<div class="empty">无结果图</div>`}${renderModelBadge(safe)}<dl class="kv"><dt>模型</dt><dd>${escapeHtml(safe.model_display_name)}</dd><dt>阶段</dt><dd>${escapeHtml(safe.model_stage)}</dd><dt>目标类型</dt><dd>${escapeHtml(safe.current_target_type)}</dd><dt>Mock</dt><dd>${escapeHtml(yesNo(safe.fallback_to_mock))}</dd><dt>正式指标</dt><dd>${escapeHtml(yesNo(safe.formal_metric_available))}</dd></dl><div class="warning-strip">${escapeHtml(safe.model_warning)}</div></div>`;
+    }
+
+    async function uploadImage(event) {
+      event.preventDefault();
+      const file = $("fileInput")?.files?.[0];
+      if (!file) {
+        addPageLog("请选择图片文件。");
+        return;
+      }
+      $("uploadBtn").disabled = true;
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        form.append("plot_id", $("plotId").value || "demo_smoke_plot");
+        form.append("plot_name", $("plotName").value || "Smoke 演示地块");
+        form.append("region_name", "Smoke 演示区域");
+        form.append("source_type", $("sourceType").value || "phone_rgb");
+        if ($("modelHint").value) form.append("model_hint", $("modelHint").value);
+        if ($("targetType").value) form.append("target_type", $("targetType").value);
+        const result = await safeFetchJson("/api/detect/image", { method: "POST", body: form }, "upload-image");
+        if (result) {
+          const safe = normalizeDetectionResult(result);
+          state.selectedRecordId = safe.record_id;
+          renderRecordDetail(safe);
+          await renderMobilePreview(safe.record_id);
+          addPageLog(`上传完成：${safe.record_id}`);
+        }
+      } finally {
+        $("uploadBtn").disabled = false;
+      }
+    }
+
+    function renderDryRunResult(payload, inputFileName) {
+      const shaPrefix = text(payload.weight_sha256, "").slice(0, 8);
+      const probUrl = text(payload.probability_map_url, "");
+      const maskUrl = text(payload.mask_url, "");
+      const overlayUrl = text(payload.overlay_url, "");
+      const previewUrl = text(payload.original_preview_url, "");
+      const media = `
+        <div class="dry-run-media">
+          <figure>${previewUrl ? `<img src="${escapeHtml(previewUrl)}" alt="original multispectral preview">` : `<div class="empty">input: ${escapeHtml(inputFileName || "TIF")}</div>`}<figcaption>原始预览 / 输入文件信息</figcaption></figure>
+          <figure>${maskUrl ? `<img src="${escapeHtml(maskUrl)}" alt="predicted mask">` : `<div class="empty">mask 未返回</div>`}<figcaption>mask</figcaption></figure>
+          <figure>${overlayUrl ? `<img src="${escapeHtml(overlayUrl)}" alt="overlay">` : `<div class="empty">overlay 未返回</div>`}<figcaption>overlay</figcaption></figure>
+        </div>`;
+      $("dryRunResult").innerHTML = `
+        <div class="badges">
+          <span class="badge smoke">Experimental</span>
+          <span class="badge metric">Dry-run only</span>
+          <span class="badge disease">Formal candidate</span>
+          <span class="badge mock">Not production</span>
+        </div>
+        <dl class="kv">
+          <dt>success</dt><dd>${escapeHtml(text(payload.success))}</dd>
+          <dt>mode</dt><dd>${escapeHtml(text(payload.mode))}</dd>
+          <dt>model_stage</dt><dd>${escapeHtml(text(payload.model_stage))}</dd>
+          <dt>input_config</dt><dd>${escapeHtml(text(payload.input_config))}</dd>
+          <dt>disease_area_ratio</dt><dd>${escapeHtml(text(payload.disease_area_ratio))}</dd>
+          <dt>threshold</dt><dd>${escapeHtml(text(payload.threshold))}</dd>
+          <dt>min_area</dt><dd>${escapeHtml(text(payload.min_area))}</dd>
+          <dt>sha256</dt><dd>${escapeHtml(shaPrefix)}</dd>
+          <dt>probability map</dt><dd>${probUrl ? `<a href="${escapeHtml(probUrl)}" target="_blank" rel="noopener">probability_map.npy</a>` : "未返回"}</dd>
+          <dt>warning</dt><dd>${escapeHtml(text(payload.warning))}</dd>
+        </dl>
+        ${media}
+        <div class="warning-strip">该结果仅用于实验性 dry-run 展示，不作为正式病害识别结论，不进入统计或告警。</div>`;
+    }
+
+    function renderDryRunError(payload, fallbackMessage) {
+      const errorCode = text(payload && payload.error_code, "UNKNOWN_DRY_RUN_ERROR");
+      const message = text(payload && payload.message, fallbackMessage || "dry-run 请求失败");
+      $("dryRunResult").innerHTML = `
+        <div class="warning-strip error-strip">
+          <strong>${escapeHtml(errorCode)}</strong><br>
+          ${escapeHtml(message)}
+        </div>
+        <dl class="kv">
+          <dt>mode</dt><dd>${escapeHtml(text(payload && payload.mode, "dry_run_only"))}</dd>
+          <dt>production_ready</dt><dd>${escapeHtml(text(payload && payload.production_ready, "false"))}</dd>
+          <dt>backend_integration_allowed</dt><dd>${escapeHtml(text(payload && payload.backend_integration_allowed, "dry_run_only"))}</dd>
+          <dt>warning</dt><dd>${escapeHtml(text(payload && payload.warning, "experimental_dry_run_only_not_for_production"))}</dd>
+        </dl>`;
+    }
+
+    async function uploadDryRun(event) {
+      event.preventDefault();
+      const file = $("dryRunFileInput")?.files?.[0];
+      if (!file) {
+        renderDryRunError({ error_code: "NO_TIF_SELECTED", message: "请选择 5-band / multispectral TIF。", mode: "dry_run_only" });
+        return;
+      }
+      const lowerName = (file.name || "").toLowerCase();
+      if (!lowerName.endsWith(".tif") && !lowerName.endsWith(".tiff")) {
+        renderDryRunError({
+          error_code: "INVALID_MULTISPECTRAL_TIF",
+          message: "仅支持 5-band / multispectral TIF；RGB 图片不支持。",
+          mode: "dry_run_only",
+          production_ready: false,
+          backend_integration_allowed: "dry_run_only",
+          warning: "experimental_dry_run_only_not_for_production",
+        });
+        return;
+      }
+      $("dryRunBtn").disabled = true;
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        form.append("mode", "dry_run_only");
+        form.append("return_probability_map", "true");
+        form.append("return_overlay", "true");
+        const response = await fetch(`${apiBase}/api/experimental/uav-blb-segmentation/dry-run`, { method: "POST", body: form });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.success === false) {
+          renderDryRunError(payload, `/api/experimental/uav-blb-segmentation/dry-run ${response.status}`);
+          addPageLog(`dry-run 失败：${text(payload.error_code, response.status)}`);
+          return;
+        }
+        renderDryRunResult(payload, file.name);
+        addPageLog("UAV BLB segmentation dry-run 完成；未进入正式统计或告警。");
+      } catch (error) {
+        renderDryRunError(null, text(error && error.message, "dry-run 请求失败"));
+      } finally {
+        $("dryRunBtn").disabled = false;
+      }
+    }
+
+    function setWsUi() {
+      $("connectWsBtn").disabled = Boolean(state.ws);
+      $("disconnectWsBtn").disabled = !state.ws;
+      $("wsStatus").textContent = state.wsConnected ? "WebSocket：已连接 /ws/results" : state.ws ? "WebSocket：连接中" : "WebSocket：未连接";
+    }
+
+    function connectWebSocket() {
+      if (state.ws) {
+        addWsLog("已有 WebSocket 实例，跳过重复连接。");
+        return;
+      }
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const ws = new WebSocket(`${protocol}//${window.location.host}/ws/results`);
+      state.ws = ws;
+      state.wsReconnectCount = 0;
+      setWsUi();
+      addWsLog("正在手动连接 WebSocket。");
+      ws.onopen = () => {
+        state.wsConnected = true;
+        setWsUi();
+        addWsLog("WebSocket 已连接。");
+      };
+      ws.onmessage = (event) => {
+        try {
+          const data = normalizeDetectionResult(JSON.parse(event.data));
+          state.wsResults.unshift(data);
+          state.wsResults = capList(state.wsResults, MAX_WS_RESULTS);
+          renderWsResults();
+          addWsLog(`收到新结果：${data.record_id}`);
+        } catch (error) {
+          addWsLog(`WebSocket 消息解析失败：${text(error && error.message)}`);
+        }
+      };
+      ws.onerror = () => addWsLog("WebSocket 连接异常。");
+      ws.onclose = () => {
+        state.wsConnected = false;
+        state.ws = null;
+        setWsUi();
+        addWsLog("WebSocket 已断开。默认不自动重连。");
+        if (state.autoReconnect && state.wsReconnectCount < MAX_WS_RECONNECT) {
+          state.wsReconnectCount += 1;
+          window.setTimeout(connectWebSocket, 3000);
+        }
+      };
+    }
+
+    function disconnectWebSocket() {
+      state.autoReconnect = false;
+      if (state.ws) {
+        const ws = state.ws;
+        state.ws = null;
+        ws.close();
+      }
+      state.wsConnected = false;
+      setWsUi();
+      addWsLog("已手动断开 WebSocket。");
+    }
+
+    function renderWsResults() {
+      $("wsLatest").innerHTML = state.wsResults.length
+        ? state.wsResults.map((record) => `<article class="model-tile"><div class="tile-title"><span>${escapeHtml(targetLabel(record))}</span><span class="badge smoke">${escapeHtml(record.record_id)}</span></div>${renderModelBadge(record)}<dl class="kv"><dt>模型</dt><dd>${escapeHtml(record.model_display_name)}</dd><dt>阶段</dt><dd>${escapeHtml(record.model_stage)}</dd><dt>目标</dt><dd>${escapeHtml(record.current_target_type)}</dd><dt>Mock</dt><dd>${escapeHtml(yesNo(record.fallback_to_mock))}</dd><dt>正式指标</dt><dd>${escapeHtml(yesNo(record.formal_metric_available))}</dd><dt>source</dt><dd>${escapeHtml(record.source_type)}</dd></dl><p class="subtitle">${escapeHtml(record.model_warning)}</p></article>`).join("")
+        : `<div class="empty">尚未收到 WebSocket 新结果。</div>`;
+    }
+
+    async function loadAllManualData() {
+      await Promise.all([loadDashboard(), loadRecords()]);
+    }
+
+    function bindEvents() {
+      $("uploadForm").addEventListener("submit", uploadImage);
+      $("dryRunForm").addEventListener("submit", uploadDryRun);
+      $("refreshModelsBtn").addEventListener("click", loadModelStatus);
+      $("loadDataBtn").addEventListener("click", loadAllManualData);
+      $("loadDashboardBtn").addEventListener("click", loadDashboard);
+      $("loadRecordsBtn").addEventListener("click", () => loadRecords());
+      $("connectWsBtn").addEventListener("click", connectWebSocket);
+      $("disconnectWsBtn").addEventListener("click", disconnectWebSocket);
+      window.addEventListener("beforeunload", () => {
+        if (state.ws) state.ws.close();
+      });
+    }
+
+    bindEvents();
+    setWsUi();
+    loadModelStatus().catch((error) => addPageLog(`初始化失败：${text(error && error.message)}`));
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "disease_id": "brown_spot",
+  "zh_name": "褐斑病",
+  "en_name": "Brown spot",
+  "aliases": ["rice brown spot", "brown leaf spot", "褐色叶斑"],
+  "pathogen_type": "fungus",
+  "pathogen_name": "Bipolaris oryzae",
+  "affected_crop": ["rice"],
+  "affected_parts": ["leaf", "seed", "glume"],
+  "typical_symptoms": ["叶片圆形或椭圆形褐色斑点", "病斑中心灰白或淡褐", "病斑周围可有黄色晕圈"],
+  "early_symptoms": ["叶片出现针尖状褐色小点", "斑点逐渐扩大为椭圆形"],
+  "late_symptoms": ["病斑增多并融合", "叶片早衰", "谷粒或颖壳可出现褐色斑"],
+  "similar_diseases": ["rice_blast", "narrow_brown_leaf_spot", "sheath_blight"],
+  "favorable_conditions": ["土壤肥力低", "缺钾或营养失衡", "干旱或水分胁迫", "种子带菌"],
+  "transmission": ["种子带菌", "病残体存活", "孢子随风雨传播"],
+  "risk_notes": ["phone 近距离识别适合观察斑点形态，但需结合土壤肥力和田间分布判断", "与稻瘟病病斑相似时需人工复核"],
+  "management_suggestions": ["使用健康种子并进行规范种子处理", "改善土壤肥力并平衡施肥", "减少水分胁迫并清理病残体", "必要时咨询当地植保人员确认防控措施"],
+  "model_class_mapping": ["brown_spot", "rice_brown_spot", "phone_brown_spot"],
+  "evidence_sources": ["src_irri_brown_spot", "src_cabi_brown_spot", "src_internal_v06"],
+  "authority_level": "A",
+  "last_updated": "2026-07-03"
+}

@@ -1,0 +1,22 @@
+uav_blb_408:
+  dataset_root: datasets/rice_uav_ms_blb_preview_1000
+  machine_check: PASS
+  manual_gate: FAIL
+  review_ui_hotfix: COMPLETE
+  bbox_color_legend: enabled
+  training_allowed: false
+  current_status: manual review complete; gate FAIL due to serious issue ratio above threshold; training not allowed
+  active_optional_candidate: experimental_408_epoch5
+  experimental_reference: strict408_v0_2_controlled
+  allowed_usage:
+    - manual review
+    - dataset quality audit
+    - controlled training planning if manual_gate PASS
+  forbidden_usage:
+    - direct training if manual_gate not PASS
+    - backend upgrade
+    - formal claim
+    - pesticide recommendation
+  next_action:
+    - prepare cleaned408_v2 duplicate-overlap correction plan
+    - re-review corrected hard cases before any training planning resumes

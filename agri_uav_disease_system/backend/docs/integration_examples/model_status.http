@@ -1,0 +1,58 @@
+### Model status catalog
+GET http://127.0.0.1:8000/api/models/status
+
+### Demo safety rules
+GET http://127.0.0.1:8000/api/models/demo-safety
+
+### Phone disease smoke route
+POST http://127.0.0.1:8000/api/detect/image
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="source_type"
+
+phone_rgb
+--boundary
+Content-Disposition: form-data; name="file"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+--boundary--
+
+### UAV crop-object smoke route, not disease
+POST http://127.0.0.1:8000/api/detect/image
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="source_type"
+
+uav_rgb
+--boundary
+Content-Disposition: form-data; name="file"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+--boundary--
+
+### UAV BLB disease smoke route
+POST http://127.0.0.1:8000/api/detect/image
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="source_type"
+
+uav_multispectral
+--boundary
+Content-Disposition: form-data; name="model_hint"
+
+uav_blb
+--boundary
+Content-Disposition: form-data; name="target_type"
+
+disease
+--boundary
+Content-Disposition: form-data; name="file"; filename="blb_preview.jpg"
+Content-Type: image/jpeg
+
+< ./blb_preview.jpg
+--boundary--

@@ -1,0 +1,22 @@
+{
+  "disease_id": "tungro",
+  "zh_name": "水稻东格鲁病",
+  "en_name": "Rice tungro disease",
+  "aliases": ["rice tungro", "tungro virus disease", "东格鲁"],
+  "pathogen_type": "virus complex",
+  "pathogen_name": "Rice tungro bacilliform virus and Rice tungro spherical virus",
+  "affected_crop": ["rice"],
+  "affected_parts": ["leaf", "whole plant"],
+  "typical_symptoms": ["植株矮化", "叶片黄化至橙黄色", "分蘖减少", "生长受抑"],
+  "early_symptoms": ["新叶轻度黄化", "植株生长不整齐"],
+  "late_symptoms": ["明显矮化", "叶片橙黄", "结实率下降或产量损失"],
+  "similar_diseases": ["nutrient_deficiency", "rice_yellow_mottle", "herbicide_injury"],
+  "favorable_conditions": ["叶蝉种群高", "周边有带毒寄主或病田", "易感品种", "播栽期不整齐"],
+  "transmission": ["绿叶蝉等叶蝉媒介传播", "病株作为毒源", "田间迁飞扩散"],
+  "risk_notes": ["该类别高风险，v0.1 暂不建议进入正式模型声明或后端演示结论", "黄色矮化症状容易与缺素、药害和其他病毒病混淆"],
+  "management_suggestions": ["优先使用抗病或耐病品种", "清除病株和田边寄主并减少毒源", "协调播栽期并监测叶蝉媒介", "媒介防控应遵循当地农业技术部门建议和产品标签"],
+  "model_class_mapping": ["tungro", "rice_tungro", "phone_tungro"],
+  "evidence_sources": ["src_irri_tungro", "src_cabi_tungro", "src_internal_v06"],
+  "authority_level": "A",
+  "last_updated": "2026-07-03"
+}

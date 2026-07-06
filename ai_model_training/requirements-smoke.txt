@@ -1,0 +1,6 @@
+# Minimal dependencies for third-round smoke tests.
+# Install only when you are ready to run local checks or smoke training.
+
+pyyaml
+pillow
+ultralytics

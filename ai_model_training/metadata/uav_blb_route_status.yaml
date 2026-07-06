@@ -1,0 +1,29 @@
+bbox_route_status: BLOCKED
+full408_training_allowed: false
+cleaned408_v2_training_allowed: false
+recommended_primary_route: segmentation
+recommended_backup_route: yolo_clean_seed_smoke
+yolo_full_relabel_required: true
+current_yolo_class: bacterial_leaf_blight
+current_yolo_class_id: 0
+manual_issue_types_are_yolo_classes: false
+source_manual_gate: FAIL
+cleaned408_v2_gate: FAIL
+cleaned408_v2_second_review_reviewed: 122
+cleaned408_v2_second_review_total: 122
+cleaned408_v2_candidate_accept: 2
+cleaned408_v2_candidate_needs_fix: 120
+duplicate_still_exists_count: 116
+noise_still_exists_count: 4
+serious_issue_ratio: 0.9836
+original_images_modified: false
+original_labels_modified: false
+weights_modified: false
+backend_modified: false
+env_modified: false
+next_allowed_stage: ROUTE_SELECTION_OR_SEGMENTATION_DATA_AUDIT
+notes:
+  - do not train full408 or cleaned408_v2 YOLO bbox datasets
+  - segmentation is recommended because source labels are mask/raster-like disease regions
+  - yolo clean seed smoke may be used only as a demo/link validation route after separate approval
+  - formal YOLO detection requires manual relabeling and a new passing gate

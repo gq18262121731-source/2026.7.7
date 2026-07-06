@@ -1,0 +1,47 @@
+﻿status: experimental_only
+experiment_name: exp_uav_blb_preview408_v0_1_5epoch
+model_name: uav_blb_disease_yolo
+model_family: yolo
+task: detect
+
+dataset_root: datasets/rice_uav_ms_blb_preview_1000
+data_yaml: datasets/rice_uav_ms_blb_preview_1000/data.yaml
+dataset_version: blb_preview_1000_constrained_408
+actual_samples: 408
+target_samples_name: 1000
+dataset_alias: blb_preview_1000_constrained_408
+class_count: 1
+classes:
+  - bacterial_leaf_blight
+
+source_type: uav_multispectral
+sensor_type: multispectral_preview_rgb_render
+training_stage: experimental
+category_type: disease
+
+image_size: 320
+batch_size: 4
+epochs: 5
+learning_rate: 0.001
+optimizer: auto
+pretrained_weight: yolov8n.pt
+output_dir: experiments/uav_blb_yolo/runs
+seed: 2026
+device: cpu
+workers: 4
+
+early_stopping:
+  enabled: true
+  patience: 20
+
+boundaries:
+  experimental_only: true
+  no_formal_metrics: true
+  do_not_replace_smoke_weights: true
+  do_not_replace_preview300_weights: true
+  do_not_replace_backend_weights: true
+  do_not_pollute_rice_panicle_dataset: true
+  rgb_preview_not_formal_multispectral: true
+  constrained_408_not_full_1000: true
+
+note: "Dataset target name is preview_1000, but strict original split, D1/D2/D3, severity, and dedup constraints produced 408 actual images. This run is experimental only and does not represent formal model quality or a true multi-channel multispectral model."

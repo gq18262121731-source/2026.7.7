@@ -1,0 +1,23 @@
+dataset:
+  path: datasets/rice_uav_ms_blb_segmentation_408_v1
+  images: images
+  masks: masks
+  source_format: multispectral_tif
+  mask_format: png_binary_0_255
+input:
+  input_channels: 6
+  channel_policy: preserve 5/6-channel TIF, pad 5-channel samples to 6
+  normalization: per-channel percentile clipping 1-99 then scale 0-1
+model:
+  name: tiny_unet_multispectral_smoke
+  output_channels: 1
+training:
+  batch_size: 4
+  image_size: 256
+  epochs_recommended: 3
+  loss: bce_with_logits_plus_soft_dice
+  output_dir: runs/uav_blb_multispectral_segmentation_408_v1_smoke
+status:
+  production_ready: false
+  backend_integration_allowed: false
+  multispectral_smoke_training_allowed: true

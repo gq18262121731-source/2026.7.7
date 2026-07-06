@@ -1,0 +1,50 @@
+dataset_id: phone_riceleafdiseasebd_expanded_v1
+dataset_path: datasets/rice_phone_rgb_expanded
+source_dataset: RiceLeafDiseaseBD
+source_url: https://data.mendeley.com/datasets/86s4jzj2m4/1
+license: CC BY 4.0
+images: 7575
+labels: 7575
+bbox: 69769
+split:
+  train: 5300
+  val: 1514
+  test: 761
+classes:
+  0: brown_spot
+  1: rice_blast
+  2: leaf_smut
+  3: tungro
+  4: sheath_blight
+healthy_excluded: 1575
+empty_disease_labels_excluded: 586
+duplicate_images_excluded: 33
+class_mapping_strategy: source_directory_based_remap
+data_yaml_sha256: db95f92240ee2ab80daa6ffddea187a6c0381a212f7c135f3543967b3757530a
+class_map_sha256: 32ddd4693100565ecc71b6b7e81d8580ecbbdde354ddc2b14f8f0b1791d91ae5
+image_metadata_sha256: 89e1f71b3271f4023c846246eb52239545490673e980823203f27694757f8c1f
+conversion_report_sha256: 41161db3909a2216a6d29042f78fc0daa4f2d7182ac8931a90dbdf4168da3b03
+label_files_hash_summary:
+  file_count: 7575
+  total_size_bytes: 2651222
+  combined_sha256: f11d185d18f30e9099b0b97cfd3ae2b2918e53a80c00b566d73962bea3175475
+image_files_hash_summary:
+  file_count: 7575
+  total_size_bytes: 2586432797
+  combined_sha256: fea4fd1947ea9d9b13283877b519ff7a7096c13406b8e7366dc97996f9e16cb3
+check_dataset_report: reports/phone_riceleafdiseasebd_expanded_dataset_check_before_train.json
+field_audit_report: reports/phone_riceleafdiseasebd_field_consistency_audit.json
+class_mapping_audit_report: reports/phone_riceleafdiseasebd_class_mapping_audit.json
+split_leakage_audit_report: reports/phone_riceleafdiseasebd_split_leakage_audit.json
+bbox_quality_audit_report: reports/phone_riceleafdiseasebd_bbox_quality_audit.json
+visual_audit_index: reports/visual_audit/phone_riceleafdiseasebd_expanded/index.md
+frozen_at: '2026-06-24T18:13:01.900595+00:00'
+freeze_status: frozen_for_experimental_training
+allowed_usage:
+- experimental training
+- internal model comparison
+forbidden_usage:
+- formal claim
+- production diagnosis
+- changing val/test labels after freeze
+- adding Healthy as disease class

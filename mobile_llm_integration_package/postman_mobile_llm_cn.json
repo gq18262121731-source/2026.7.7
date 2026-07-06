@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "无人机水稻病虫害识别系统移动端 LLM 联调包",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "移动端第一阶段联调集合：拍照识别、识别详情、LLM 状态、知识检索、知识上下文、自由问答。示例统一使用 BASE_URL 和 TOKEN。"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://test-api.example.com"
+    },
+    {
+      "key": "TOKEN",
+      "value": "replace-with-your-token"
+    },
+    {
+      "key": "record_id",
+      "value": "rec_001"
+    },
+    {
+      "key": "disease_id",
+      "value": "bacterial_leaf_blight"
+    },
+    {
+      "key": "model_class",
+      "value": "bacterial_leaf_blight"
+    },
+    {
+      "key": "confidence",
+      "value": "0.78"
+    }
+  ],
+  "item": [
+    {
+      "name": "快速联调",
+      "item": [
+        {
+          "name": "健康检查",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/healthz"
+          }
+        },
+        {
+          "name": "模型状态",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/models/status"
+          }
+        },
+        {
+          "name": "LLM 问答能力状态",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/agent/llm-status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "移动端第一阶段",
+      "item": [
+        {
+          "name": "手机拍照识别",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "source_type",
+                  "value": "phone_rgb",
+                  "type": "text"
+                },
+                {
+                  "key": "model_hint",
+                  "value": "phone",
+                  "type": "text"
+                },
+                {
+                  "key": "target_type",
+                  "value": "disease",
+                  "type": "text"
+                },
+                {
+                  "key": "plot_name",
+                  "value": "移动端拍照",
+                  "type": "text"
+                },
+                {
+                  "key": "region_name",
+                  "value": "人工上传",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{BASE_URL}}/api/detect/image"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.record_id) {",
+                  "  pm.collectionVariables.set('record_id', data.record_id);",
+                  "}",
+                  "const firstDetection = data.detections && data.detections.length > 0 ? data.detections[0] : null;",
+                  "if (firstDetection) {",
+                  "  const modelClass = firstDetection.class_code || firstDetection.class_name || firstDetection.label;",
+                  "  if (modelClass) {",
+                  "    pm.collectionVariables.set('model_class', modelClass);",
+                  "  }",
+                  "  if (typeof firstDetection.confidence === 'number') {",
+                  "    pm.collectionVariables.set('confidence', String(firstDetection.confidence));",
+                  "  }",
+                  "}",
+                  "if (data.summary && data.summary.max_confidence !== undefined) {",
+                  "  pm.collectionVariables.set('confidence', String(data.summary.max_confidence));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "识别记录详情",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/records/{{record_id}}"
+          }
+        },
+        {
+          "name": "记录辅助建议",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/suggestions/{{record_id}}"
+          }
+        },
+        {
+          "name": "知识库检索",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"\\u767d\\u53f6\\u67af\\u75c5\\u7684\\u5178\\u578b\\u75c7\\u72b6\\u662f\\u4ec0\\u4e48\\uff1f\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"top_k\": 5\n}"
+            },
+            "url": "{{BASE_URL}}/api/knowledge/search"
+          }
+        },
+        {
+          "name": "知识上下文",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"\\u4e3a\\u4ec0\\u4e48\\u8bc6\\u522b\\u7ed3\\u679c\\u63d0\\u793a\\u53ef\\u80fd\\u662f\\u767d\\u53f6\\u67af\\uff1f\",\n  \"record_id\": \"{{record_id}}\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"model_class\": \"{{model_class}}\",\n  \"confidence\": {{confidence}},\n  \"source_type\": \"phone_rgb\",\n  \"top_k\": 5,\n  \"include_knowledge_chunks\": true,\n  \"include_graph\": true,\n  \"include_relations\": true\n}"
+            },
+            "url": "{{BASE_URL}}/api/agent/knowledge-context"
+          }
+        },
+        {
+          "name": "自由问答：生成辅助解释",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"record_id\": \"{{record_id}}\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"model_class\": \"{{model_class}}\",\n  \"confidence\": {{confidence}},\n  \"source_type\": \"phone_rgb\",\n  \"user_question\": \"\\u8fd9\\u4e2a\\u7ed3\\u679c\\u80fd\\u4e0d\\u80fd\\u76f4\\u63a5\\u4f5c\\u4e3a\\u7528\\u836f\\u4f9d\\u636e\\uff1f\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/agent/diagnosis-report"
+          }
+        }
+      ]
+    }
+  ]
+}

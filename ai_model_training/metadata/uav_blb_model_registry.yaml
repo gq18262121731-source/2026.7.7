@@ -1,0 +1,147 @@
+﻿registry_name: uav_blb_model_registry
+created_at: "2026-06-23T00:00:00+08:00"
+project: rice_pest_disease_image_detection_system
+scope: uav_bacterial_leaf_blight_yolo_experimental_registry
+boundary:
+  no_training_this_round: true
+  no_validation_this_round: true
+  no_inference_this_round: true
+  no_new_weights_this_round: true
+  no_formal_metrics: true
+  no_backend_change_this_round: true
+common_model_metadata:
+  model_name: uav_blb_disease_yolo
+  model_family: yolo
+  task: detect
+  class_count: 1
+  class_codes:
+    - bacterial_leaf_blight
+  current_target_type: disease
+  category_type: disease
+  source_type: uav_multispectral
+  sensor_type: multispectral_preview_rgb_render
+  is_true_multichannel_model: false
+  is_formal_model: false
+  formal_metric_available: false
+  note: "Models were trained on RGB preview renders derived from multispectral TIF data; they are not formal multi-channel multispectral models."
+models:
+  - model_id: smoke_epoch1_50
+    model_name: uav_blb_disease_yolo
+    version: smoke_epoch1_20260623
+    dataset: datasets/rice_uav_ms_blb_preview
+    data_yaml: datasets/rice_uav_ms_blb_preview/data.yaml
+    images: 50
+    labels: 50
+    bbox: 294
+    split:
+      train: 35
+      val: 10
+      test: 5
+    source_dataset_distribution:
+      D1: 18
+      D2: 17
+      D3: 15
+    stage: smoke
+    epochs: 1
+    weights: experiments/uav_blb_yolo/runs/smoke_uav_blb_baseline_v0_1/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6221220
+    weights_sha256: f8e11663f8f764de49048c608bb49dee0f896f22e97d71fce0d100e86ecc2afc
+    validation_report: reports/uav_blb_smoke_validation.json
+    validation_metric_scope: smoke_test_metrics
+    inference_report: reports/uav_blb_smoke_infer_result.json
+    infer_images: 5
+    infer_detections: 0
+    purpose: backend smoke wiring and schema compatibility only
+    recommended_usage: smoke wiring/schema check
+    formal_metric_available: false
+    is_formal_model: false
+    notes:
+      - "1 epoch smoke only."
+      - "Not suitable for production or formal model comparison."
+  - model_id: experimental_300_epoch3
+    model_name: uav_blb_disease_yolo
+    version: experimental_preview300_epoch3_20260623
+    dataset: datasets/rice_uav_ms_blb_preview_300
+    data_yaml: datasets/rice_uav_ms_blb_preview_300/data.yaml
+    images: 300
+    labels: 300
+    bbox: 1663
+    split:
+      train: 210
+      val: 60
+      test: 30
+    source_dataset_distribution:
+      D1: 102
+      D2: 101
+      D3: 97
+    severity_image_distribution:
+      low: 12
+      high: 112
+      mixed: 176
+    severity_bbox_distribution:
+      low: 386
+      high: 1277
+    stage: experimental
+    epochs: 3
+    weights: experiments/uav_blb_yolo/runs/exp_uav_blb_preview300_v0_1/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6221540
+    weights_sha256: c6cc8c5a7fa0c571b1730dcda965bd99a11cfbe51b431571e2a4b530bab029aa
+    validation_report: reports/uav_blb_preview300_exp_validation.json
+    validation_metric_scope: experimental_metrics
+    inference_report: reports/uav_blb_preview300_exp_infer_result.json
+    infer_images: 5
+    infer_detections: 28
+    purpose: early experimental reference
+    recommended_usage: early experimental reference only
+    formal_metric_available: false
+    is_formal_model: false
+    notes:
+      - "Metrics are experimental only."
+      - "Do not replace backend smoke/default weights directly."
+  - model_id: experimental_408_epoch5
+    model_name: uav_blb_disease_yolo
+    version: experimental_preview408_epoch5_20260623
+    dataset: datasets/rice_uav_ms_blb_preview_1000
+    target_name: preview_1000
+    actual_images: 408
+    labels: 408
+    bbox: 2373
+    split:
+      train: 279
+      val: 60
+      test: 69
+    source_dataset_distribution:
+      D1: 139
+      D2: 136
+      D3: 133
+    severity_image_distribution:
+      low: 12
+      high: 117
+      mixed: 279
+    severity_bbox_distribution:
+      low: 620
+      high: 1753
+    stage: experimental
+    epochs: 5
+    weights: experiments/uav_blb_yolo/runs/exp_uav_blb_preview408_v0_1_5epoch/weights/best.pt
+    weights_exists: true
+    weights_size_bytes: 6221796
+    weights_sha256: ab9e282eed7add5a19979c020590616f163863e5c60998f05eaa6eb71b22c804
+    validation_report: reports/uav_blb_preview408_exp_validation.json
+    validation_metric_scope: experimental_metrics
+    inference_report: reports/uav_blb_preview408_exp_infer_result.json
+    infer_images: 10
+    infer_detections: 77
+    purpose: current preferred optional experimental candidate
+    recommended_usage: optional experimental backend candidate behind explicit model hint
+    formal_metric_available: false
+    is_formal_model: false
+    notes:
+      - "Best current experimental candidate, still not formal."
+      - "Do not present as a true multispectral production model."
+recommended_candidate:
+  model_id: experimental_408_epoch5
+  reason: "Largest current constrained BLB subset and strongest existing experimental validation metrics among the three available stages."
+  integration_policy: "Optional experimental candidate only; do not replace smoke/default backend route without explicit approval."

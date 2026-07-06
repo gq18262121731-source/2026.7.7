@@ -1,0 +1,39 @@
+from __future__ import annotations
+
+from app.core.constants import SEVERITY_NONE
+from app.schemas.detection_result import Suggestion
+
+
+DISCLAIMER = "\u672c\u5efa\u8bae\u4e3a\u8f85\u52a9\u53c2\u8003\uff0c\u5177\u4f53\u7528\u836f\u548c\u5904\u7f6e\u65b9\u6848\u9700\u7531\u519c\u6280\u4eba\u5458\u786e\u8ba4\u3002"
+
+
+class AgricultureSuggestionEngine:
+    def generate(self, main_disease: str | None, severity: str) -> Suggestion:
+        if severity == SEVERITY_NONE or not main_disease:
+            return Suggestion(
+                title="\u6682\u672a\u53d1\u73b0\u660e\u663e\u75c5\u866b\u5bb3\u98ce\u9669",
+                content="\u5efa\u8bae\u7ee7\u7eed\u4fdd\u6301\u5e38\u89c4\u5de1\u7530\uff0c\u5173\u6ce8\u6c34\u80a5\u7ba1\u7406\u3001\u7530\u95f4\u901a\u98ce\u548c\u540e\u7eed\u5929\u6c14\u53d8\u5316\u3002",
+                need_expert_confirm=False,
+                actions=["\u4fdd\u6301\u5e38\u89c4\u5de1\u7530", "\u5173\u6ce8\u7530\u95f4\u6c34\u80a5\u7ba1\u7406"],
+                knowledge_tags=["\u65e0\u75c5", "\u5e38\u89c4\u5de1\u7530"],
+                disclaimer=None,
+            )
+
+        if main_disease == "\u7a3b\u98de\u8671":
+            content = "\u5efa\u8bae\u5c3d\u5feb\u4eba\u5de5\u590d\u67e5\u866b\u60c5\uff0c\u5fc5\u8981\u65f6\u8054\u7cfb\u519c\u6280\u4eba\u5458\u5236\u5b9a\u96c6\u4e2d\u9632\u6cbb\u65b9\u6848\u3002"
+            actions = ["\u73b0\u573a\u590d\u67e5\u866b\u60c5", "\u8bb0\u5f55\u866b\u5bb3\u5206\u5e03\u8303\u56f4", "\u8054\u7cfb\u519c\u6280\u4eba\u5458\u786e\u8ba4\u9632\u6cbb\u65b9\u6848"]
+        elif main_disease == "\u7a3b\u761f\u75c5":
+            content = "\u5efa\u8bae\u52a0\u5f3a\u7530\u95f4\u590d\u6838\uff0c\u5173\u6ce8\u6e7f\u5ea6\u548c\u901a\u98ce\u60c5\u51b5\uff0c\u5177\u4f53\u9632\u6cbb\u65b9\u6848\u9700\u519c\u6280\u4eba\u5458\u786e\u8ba4\u3002"
+            actions = ["\u73b0\u573a\u590d\u67e5\u75c5\u6591\u5206\u5e03", "\u5173\u6ce8\u7530\u95f4\u6e7f\u5ea6\u548c\u901a\u98ce\u60c5\u51b5", "\u8054\u7cfb\u519c\u6280\u4eba\u5458\u786e\u8ba4\u9632\u6cbb\u65b9\u6848"]
+        else:
+            content = "\u5efa\u8bae\u7ed3\u5408\u7530\u95f4\u5b9e\u9645\u60c5\u51b5\u590d\u6838\u75c5\u866b\u5bb3\u8303\u56f4\uff0c\u5177\u4f53\u9632\u6cbb\u65b9\u6848\u9700\u7531\u519c\u6280\u4eba\u5458\u786e\u8ba4\u3002"
+            actions = ["\u73b0\u573a\u590d\u6838\u75c5\u866b\u5bb3\u8303\u56f4", "\u4fdd\u7559\u8bc6\u522b\u7ed3\u679c\u56fe", "\u8054\u7cfb\u519c\u6280\u4eba\u5458\u590d\u6838"]
+
+        return Suggestion(
+            title=f"\u7591\u4f3c{main_disease}{severity}\u98ce\u9669",
+            content=content,
+            need_expert_confirm=True,
+            actions=actions,
+            knowledge_tags=[main_disease, f"{severity}\u98ce\u9669", "\u7530\u95f4\u590d\u6838"],
+            disclaimer=DISCLAIMER,
+        )

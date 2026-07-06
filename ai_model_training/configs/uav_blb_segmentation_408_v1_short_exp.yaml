@@ -1,0 +1,64 @@
+dataset:
+  path: datasets/rice_uav_ms_blb_segmentation_408_v1
+  train_images: images/train
+  val_images: images/val
+  test_images: images/test
+  train_masks: masks/train
+  val_masks: masks/val
+  test_masks: masks/test
+  image_format: multispectral_tif
+  mask_format: png_binary_0_255
+  classes:
+    0: background
+    1: bacterial_leaf_blight
+  mask_value_mapping:
+    source_raster_2: foreground_255
+    source_raster_3: foreground_255
+    source_raster_0: background_0
+    source_raster_1: background_or_ignore_0
+    source_raster_4: background_or_ignore_0
+
+gate:
+  bbox_route_status: BLOCKED
+  visual_qa_gate: PASS
+  segmentation_training_allowed: true
+  short_experiment_allowed: true
+  production_ready: false
+  backend_integration_allowed: false
+  known_risks:
+    mask_too_small_samples: 26
+    serious_issue_ratio: 0.06372549019607843
+
+training:
+  purpose: segmentation_short_experiment_smoke
+  model: tiny_unet_baseline
+  epochs: 3
+  batch_size: 8
+  image_size: 256
+  input_channels: 3
+  source_image_channel_policy: preview_jpg_rgb_smoke_input
+  full_multispectral_tif_used: false
+  tif_reader_note: torchgpu environment lacks tifffile and cannot read 5/6-channel TIF with OpenCV/PIL
+  loss: bce_with_logits_plus_soft_dice
+  optimizer: adamw
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  metrics:
+    - val_loss
+    - dice
+    - iou
+    - pixel_accuracy
+    - precision
+    - recall
+  output_dir: runs/uav_blb_segmentation_408_v1_short_exp
+  environment_hint: conda run -n torchgpu python scripts/train_uav_blb_segmentation_408_v1_short_exp.py
+
+restrictions:
+  do_not_use_full408_yolo_bbox: true
+  do_not_use_cleaned408_v2_yolo_bbox: true
+  do_not_modify_original_images: true
+  do_not_overwrite_original_yolo_labels: true
+  do_not_modify_backend: true
+  do_not_modify_env: true
+  do_not_claim_formal_model: true
+  do_not_integrate_backend: true

@@ -1,0 +1,3201 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "无人机水稻病虫害识别系统移动端 LLM 联调 API",
+    "version": "mvp-1",
+    "description": "移动端第一阶段 API：拍照识别、识别详情、LLM 状态、知识检索、知识上下文、自由问答。"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "status"
+        ],
+        "summary": "健康检查",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Healthz Healthz Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/models/status": {
+      "get": {
+        "tags": [
+          "status"
+        ],
+        "summary": "模型状态",
+        "operationId": "models_status_api_models_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/agent/llm-status": {
+      "get": {
+        "tags": [
+          "experimental-agent"
+        ],
+        "summary": "LLM 问答能力状态",
+        "operationId": "llm_status_api_agent_llm_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LLMStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "用于移动端判断智能问答能力状态，不生成问答内容。",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/detect/image": {
+      "post": {
+        "tags": [
+          "detection"
+        ],
+        "summary": "单图识别",
+        "operationId": "detect_image_api_detect_image_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_detect_image_api_detect_image_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectionResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "上传文件超过大小限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "用于手机拍照或相册图片上传识别。图片字段名为 file。",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/mobile/records/{record_id}": {
+      "get": {
+        "tags": [
+          "mobile"
+        ],
+        "summary": "移动端识别记录详情",
+        "operationId": "mobile_record_detail_api_mobile_records__record_id__get",
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileRecordDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/mobile/suggestions/{record_id}": {
+      "get": {
+        "tags": [
+          "mobile"
+        ],
+        "summary": "移动端记录建议",
+        "operationId": "mobile_suggestion_api_mobile_suggestions__record_id__get",
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Suggestion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/knowledge/search": {
+      "post": {
+        "tags": [
+          "experimental-knowledge"
+        ],
+        "summary": "知识库检索",
+        "operationId": "search_knowledge_api_knowledge_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/agent/knowledge-context": {
+      "post": {
+        "tags": [
+          "experimental-agent"
+        ],
+        "summary": "知识上下文",
+        "operationId": "knowledge_context_api_agent_knowledge_context_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeContextRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeContextResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "根据用户问题、识别结果和病害类别，聚合知识库片段与知识图谱上下文。",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/agent/diagnosis-report": {
+      "post": {
+        "tags": [
+          "experimental-agent"
+        ],
+        "summary": "诊断辅助解释",
+        "operationId": "diagnosis_report_api_agent_diagnosis_report_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosisReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosisReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权或 token 无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或记录已被清理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "LLM 服务暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "根据识别结果、知识库和知识图谱生成辅助解释，不作为正式农艺诊断或用药依据。",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_detect_image_api_detect_image_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Id"
+          },
+          "plot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Id"
+          },
+          "plot_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Name"
+          },
+          "region_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Name"
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "model_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Hint"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "model_stage_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Stage Hint"
+          },
+          "uav_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uav Task Id"
+          },
+          "abnormal_region_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnormal Region Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_detect_image_api_detect_image_post"
+      },
+      "DetectionResult": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "default": "detection_result"
+          },
+          "record_id": {
+            "type": "string",
+            "title": "Record Id"
+          },
+          "image_id": {
+            "type": "string",
+            "title": "Image Id"
+          },
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Id"
+          },
+          "plot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Id"
+          },
+          "plot_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Name"
+          },
+          "region_name": {
+            "type": "string",
+            "title": "Region Name"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "result_image_url": {
+            "type": "string",
+            "title": "Result Image Url"
+          },
+          "image_width": {
+            "type": "integer",
+            "title": "Image Width"
+          },
+          "image_height": {
+            "type": "integer",
+            "title": "Image Height"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "detector_mode": {
+            "type": "string",
+            "title": "Detector Mode"
+          },
+          "is_smoke": {
+            "type": "boolean",
+            "title": "Is Smoke",
+            "default": false
+          },
+          "model_stage": {
+            "type": "string",
+            "title": "Model Stage",
+            "default": "mock"
+          },
+          "formal_metric_available": {
+            "type": "boolean",
+            "title": "Formal Metric Available",
+            "default": false
+          },
+          "current_target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Target Type"
+          },
+          "category_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Type"
+          },
+          "fallback_to_mock": {
+            "type": "boolean",
+            "title": "Fallback To Mock",
+            "default": false
+          },
+          "model_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Hint"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "model_stage_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Stage Hint"
+          },
+          "uav_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uav Task Id"
+          },
+          "abnormal_region_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnormal Region Id"
+          },
+          "model_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Display Name"
+          },
+          "model_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Warning"
+          },
+          "model_usage_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Usage Scope"
+          },
+          "model_capability_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Capability Level"
+          },
+          "task_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Type"
+          },
+          "result_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Type"
+          },
+          "disease_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disease Name"
+          },
+          "model_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Sha256"
+          },
+          "input_config": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Config"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold"
+          },
+          "min_area": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Area"
+          },
+          "disease_area_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disease Area Ratio"
+          },
+          "mask_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask Url"
+          },
+          "overlay_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overlay Url"
+          },
+          "probability_map_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probability Map Url"
+          },
+          "production_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Scope"
+          },
+          "human_review_required": {
+            "type": "boolean",
+            "title": "Human Review Required",
+            "default": false
+          },
+          "human_review_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Review Status"
+          },
+          "human_review_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Review Label"
+          },
+          "issue_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue Tags"
+          },
+          "reviewer_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Note"
+          },
+          "alerting_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alerting Enabled"
+          },
+          "latest_alerts_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Alerts Enabled"
+          },
+          "active_model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Model Version"
+          },
+          "geo": {
+            "$ref": "#/components/schemas/Geo"
+          },
+          "detections": {
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            },
+            "type": "array",
+            "title": "Detections"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DetectionSummary"
+          },
+          "suggestion": {
+            "$ref": "#/components/schemas/Suggestion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "record_id",
+          "image_id",
+          "region_name",
+          "timestamp",
+          "image_url",
+          "result_image_url",
+          "image_width",
+          "image_height",
+          "source_type",
+          "model_name",
+          "model_version",
+          "detector_mode",
+          "geo",
+          "detections",
+          "summary",
+          "suggestion"
+        ],
+        "title": "DetectionResult"
+      },
+      "Detection": {
+        "properties": {
+          "class_id": {
+            "type": "integer",
+            "title": "Class Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "class_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Name"
+          },
+          "category_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Type"
+          },
+          "class_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Code"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "bbox": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Bbox"
+          },
+          "area_ratio": {
+            "type": "number",
+            "title": "Area Ratio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "class_id",
+          "label",
+          "confidence",
+          "bbox",
+          "area_ratio"
+        ],
+        "title": "Detection"
+      },
+      "DetectionSummary": {
+        "properties": {
+          "disease_count": {
+            "type": "integer",
+            "title": "Disease Count"
+          },
+          "main_disease": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main Disease"
+          },
+          "max_confidence": {
+            "type": "number",
+            "title": "Max Confidence"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "disease_count",
+          "max_confidence",
+          "severity",
+          "risk_level"
+        ],
+        "title": "DetectionSummary"
+      },
+      "DiagnosisReportRequest": {
+        "properties": {
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Id"
+          },
+          "disease_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disease Id"
+          },
+          "model_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Class"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "user_question": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Question"
+          },
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Id"
+          },
+          "plot_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Id"
+          },
+          "uav_task_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uav Task Id"
+          },
+          "abnormal_region_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnormal Region Id"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Level"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          }
+        },
+        "type": "object",
+        "title": "DiagnosisReportRequest"
+      },
+      "DiagnosisReportResponse": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "diagnosis_report"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "basis": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Basis"
+          },
+          "uncertainty": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Uncertainty"
+          },
+          "next_steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Steps"
+          },
+          "safety_notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Safety Notice"
+          },
+          "used_context": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Used Context"
+          },
+          "retrieved_knowledge": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Retrieved Knowledge"
+          },
+          "llm_status": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Llm Status"
+          },
+          "suspected_disease": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SuspectedDisease"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ],
+            "title": "Suspected Disease"
+          },
+          "model_result_summary": {
+            "type": "string",
+            "title": "Model Result Summary"
+          },
+          "knowledge_summary": {
+            "type": "string",
+            "title": "Knowledge Summary"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "unknown"
+            ],
+            "title": "Risk Level"
+          },
+          "manual_check_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Manual Check Questions"
+          },
+          "management_suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Management Suggestions"
+          },
+          "uncertainty_notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Uncertainty Notes"
+          },
+          "evidence_sources": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceSource"
+            },
+            "type": "array",
+            "title": "Evidence Sources"
+          },
+          "insufficient_evidence": {
+            "type": "boolean",
+            "title": "Insufficient Evidence",
+            "default": false
+          },
+          "llm_mode": {
+            "type": "string",
+            "title": "Llm Mode",
+            "default": "mock"
+          },
+          "llm_provider": {
+            "type": "string",
+            "title": "Llm Provider",
+            "default": ""
+          },
+          "llm_model": {
+            "type": "string",
+            "title": "Llm Model",
+            "default": ""
+          },
+          "prompt_version": {
+            "type": "string",
+            "title": "Prompt Version",
+            "default": "kg_rag_agent_prompt_v1"
+          },
+          "fallback_used": {
+            "type": "boolean",
+            "title": "Fallback Used",
+            "default": false
+          },
+          "fallback_level": {
+            "type": "string",
+            "title": "Fallback Level",
+            "default": "none"
+          },
+          "api_error_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Api Error Type"
+          },
+          "repair_attempted": {
+            "type": "boolean",
+            "title": "Repair Attempted",
+            "default": false
+          },
+          "schema_valid": {
+            "type": "boolean",
+            "title": "Schema Valid",
+            "default": true
+          },
+          "safety_passed": {
+            "type": "boolean",
+            "title": "Safety Passed",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "suspected_disease",
+          "model_result_summary",
+          "knowledge_summary",
+          "risk_level",
+          "manual_check_questions",
+          "management_suggestions",
+          "uncertainty_notes",
+          "evidence_sources"
+        ],
+        "title": "DiagnosisReportResponse"
+      },
+      "EvidenceSource": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "source_title": {
+            "type": "string",
+            "title": "Source Title"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "authority_level": {
+            "type": "string",
+            "title": "Authority Level"
+          },
+          "url_or_reference": {
+            "type": "string",
+            "title": "Url Or Reference"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "source_title",
+          "source_type",
+          "authority_level",
+          "url_or_reference",
+          "language"
+        ],
+        "title": "EvidenceSource"
+      },
+      "Geo": {
+        "properties": {
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          }
+        },
+        "type": "object",
+        "title": "Geo"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "KnowledgeContextRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Id"
+          },
+          "disease_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disease Id"
+          },
+          "model_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Class"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "default": 5
+          },
+          "include_knowledge_chunks": {
+            "type": "boolean",
+            "title": "Include Knowledge Chunks",
+            "default": true
+          },
+          "include_graph": {
+            "type": "boolean",
+            "title": "Include Graph",
+            "default": true
+          },
+          "include_relations": {
+            "type": "boolean",
+            "title": "Include Relations",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "KnowledgeContextRequest"
+      },
+      "KnowledgeContextResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "knowledge_context"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "matched_disease": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeContextDisease"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "knowledge_chunks": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeContextChunk"
+            },
+            "type": "array",
+            "title": "Knowledge Chunks"
+          },
+          "graph": {
+            "$ref": "#/components/schemas/KnowledgeContextGraph"
+          },
+          "context_summary": {
+            "type": "string",
+            "title": "Context Summary"
+          },
+          "safety_notice": {
+            "type": "string",
+            "title": "Safety Notice"
+          },
+          "insufficient_evidence": {
+            "type": "boolean",
+            "title": "Insufficient Evidence",
+            "default": false
+          },
+          "missing_context": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "context_summary",
+          "safety_notice"
+        ],
+        "title": "KnowledgeContextResponse"
+      },
+      "KnowledgeContextChunk": {
+        "properties": {
+          "chunk_id": {
+            "type": "string",
+            "title": "Chunk Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "section_type": {
+            "type": "string",
+            "title": "Section Type"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "disease_id": {
+            "type": "string",
+            "title": "Disease Id"
+          },
+          "authority_level": {
+            "type": "string",
+            "title": "Authority Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chunk_id",
+          "title",
+          "section_type",
+          "content",
+          "source",
+          "score",
+          "disease_id",
+          "authority_level"
+        ],
+        "title": "KnowledgeContextChunk"
+      },
+      "KnowledgeContextDisease": {
+        "properties": {
+          "disease_id": {
+            "type": "string",
+            "title": "Disease Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Aliases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "disease_id",
+          "name"
+        ],
+        "title": "KnowledgeContextDisease"
+      },
+      "KnowledgeContextGraph": {
+        "properties": {
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeContextEntity"
+            },
+            "type": "array",
+            "title": "Entities"
+          },
+          "relations": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeContextRelation"
+            },
+            "type": "array",
+            "title": "Relations"
+          },
+          "triples": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Triples"
+          }
+        },
+        "type": "object",
+        "title": "KnowledgeContextGraph"
+      },
+      "KnowledgeContextEntity": {
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id"
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "entity_id",
+          "entity_type",
+          "name"
+        ],
+        "title": "KnowledgeContextEntity"
+      },
+      "KnowledgeContextRelation": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "relation": {
+            "type": "string",
+            "title": "Relation"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "relation",
+          "target"
+        ],
+        "title": "KnowledgeContextRelation"
+      },
+      "KnowledgeSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Query",
+            "default": ""
+          },
+          "disease_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disease Id"
+          },
+          "section_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Type"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "title": "KnowledgeSearchRequest"
+      },
+      "KnowledgeSearchResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeSearchResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "results"
+        ],
+        "title": "KnowledgeSearchResponse"
+      },
+      "KnowledgeSearchResult": {
+        "properties": {
+          "chunk_id": {
+            "type": "string",
+            "title": "Chunk Id"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "source_title": {
+            "type": "string",
+            "title": "Source Title"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "authority_level": {
+            "type": "string",
+            "title": "Authority Level"
+          },
+          "disease_id": {
+            "type": "string",
+            "title": "Disease Id"
+          },
+          "section_type": {
+            "type": "string",
+            "title": "Section Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chunk_id",
+          "score",
+          "text",
+          "source_id",
+          "source_title",
+          "source_type",
+          "authority_level",
+          "disease_id",
+          "section_type"
+        ],
+        "title": "KnowledgeSearchResult"
+      },
+      "LLMStatusResponse": {
+        "properties": {
+          "llm_mode": {
+            "type": "string",
+            "title": "Llm Mode"
+          },
+          "llm_provider": {
+            "type": "string",
+            "title": "Llm Provider"
+          },
+          "llm_model": {
+            "type": "string",
+            "title": "Llm Model"
+          },
+          "json_response_format_enabled": {
+            "type": "boolean",
+            "title": "Json Response Format Enabled"
+          },
+          "mock_fallback_enabled": {
+            "type": "boolean",
+            "title": "Mock Fallback Enabled"
+          },
+          "api_key_configured": {
+            "type": "boolean",
+            "title": "Api Key Configured"
+          },
+          "prompt_version": {
+            "type": "string",
+            "title": "Prompt Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "llm_mode",
+          "llm_provider",
+          "llm_model",
+          "json_response_format_enabled",
+          "mock_fallback_enabled",
+          "api_key_configured",
+          "prompt_version"
+        ],
+        "title": "LLMStatusResponse"
+      },
+      "MobileRecordDetail": {
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "title": "Record Id"
+          },
+          "plot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Id"
+          },
+          "plot_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot Name"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "result_image_url": {
+            "type": "string",
+            "title": "Result Image Url"
+          },
+          "main_disease": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main Disease"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "detections": {
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            },
+            "type": "array",
+            "title": "Detections"
+          },
+          "suggestion": {
+            "$ref": "#/components/schemas/Suggestion"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "detector_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detector Mode"
+          },
+          "is_smoke": {
+            "type": "boolean",
+            "title": "Is Smoke",
+            "default": false
+          },
+          "model_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Stage"
+          },
+          "formal_metric_available": {
+            "type": "boolean",
+            "title": "Formal Metric Available",
+            "default": false
+          },
+          "current_target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Target Type"
+          },
+          "fallback_to_mock": {
+            "type": "boolean",
+            "title": "Fallback To Mock",
+            "default": false
+          },
+          "model_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Hint"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "model_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Display Name"
+          },
+          "model_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Warning"
+          },
+          "model_usage_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Usage Scope"
+          },
+          "model_capability_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Capability Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "record_id",
+          "image_url",
+          "result_image_url",
+          "severity",
+          "risk_level",
+          "detections",
+          "suggestion",
+          "timestamp"
+        ],
+        "title": "MobileRecordDetail"
+      },
+      "ModelsStatusResponse": {
+        "properties": {
+          "detector_mode": {
+            "type": "string",
+            "title": "Detector Mode"
+          },
+          "active_model_name": {
+            "type": "string",
+            "title": "Active Model Name"
+          },
+          "active_model_version": {
+            "type": "string",
+            "title": "Active Model Version"
+          },
+          "uav_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_crop_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_blb_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_blb_experimental_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "phone_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "phone_experimental_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "mock_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "models": {
+            "$ref": "#/components/schemas/ModelsCatalog"
+          },
+          "active_routing": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Active Routing"
+          },
+          "fallback_to_mock": {
+            "type": "boolean",
+            "title": "Fallback To Mock"
+          },
+          "demo_safety": {
+            "$ref": "#/components/schemas/DemoSafetyStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detector_mode",
+          "active_model_name",
+          "active_model_version",
+          "uav_model",
+          "uav_crop_model",
+          "uav_blb_model",
+          "uav_blb_experimental_model",
+          "phone_model",
+          "phone_experimental_model",
+          "mock_model",
+          "models",
+          "active_routing",
+          "fallback_to_mock",
+          "demo_safety"
+        ],
+        "title": "ModelsStatusResponse"
+      },
+      "DemoSafetyStatus": {
+        "properties": {
+          "demo_safe": {
+            "type": "boolean",
+            "title": "Demo Safe"
+          },
+          "has_smoke_models": {
+            "type": "boolean",
+            "title": "Has Smoke Models"
+          },
+          "has_formal_models": {
+            "type": "boolean",
+            "title": "Has Formal Models"
+          },
+          "formal_metric_available": {
+            "type": "boolean",
+            "title": "Formal Metric Available"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "display_rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Display Rules"
+          }
+        },
+        "type": "object",
+        "required": [
+          "demo_safe",
+          "has_smoke_models",
+          "has_formal_models",
+          "formal_metric_available",
+          "warnings",
+          "display_rules"
+        ],
+        "title": "DemoSafetyStatus"
+      },
+      "ModelPathStatus": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "path_exists": {
+            "type": "boolean",
+            "title": "Path Exists"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "loaded": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loaded"
+          },
+          "model_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Stage"
+          },
+          "is_smoke": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Smoke"
+          },
+          "current_target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Target Type"
+          },
+          "category_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Type"
+          },
+          "formal_metric_available": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formal Metric Available"
+          },
+          "class_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Codes",
+            "default": []
+          },
+          "source_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Types",
+            "default": []
+          },
+          "route_condition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route Condition"
+          },
+          "warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warning"
+          },
+          "usage_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Scope"
+          },
+          "capability_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Level"
+          },
+          "dataset_actual_images": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Actual Images"
+          },
+          "dataset_target_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Target Name"
+          },
+          "is_true_multichannel_model": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is True Multichannel Model"
+          },
+          "dataset_images": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Images"
+          },
+          "dataset_bbox": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Bbox"
+          },
+          "healthy_excluded": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Healthy Excluded"
+          },
+          "class_mapping_strategy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Mapping Strategy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path_exists",
+          "ready"
+        ],
+        "title": "ModelPathStatus"
+      },
+      "ModelsCatalog": {
+        "properties": {
+          "phone_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "phone_experimental_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_crop_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_blb_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "uav_blb_experimental_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          },
+          "mock_model": {
+            "$ref": "#/components/schemas/ModelPathStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone_model",
+          "phone_experimental_model",
+          "uav_crop_model",
+          "uav_blb_model",
+          "uav_blb_experimental_model",
+          "mock_model"
+        ],
+        "title": "ModelsCatalog"
+      },
+      "Suggestion": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "need_expert_confirm": {
+            "type": "boolean",
+            "title": "Need Expert Confirm",
+            "default": true
+          },
+          "actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Actions",
+            "default": []
+          },
+          "knowledge_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Knowledge Tags",
+            "default": []
+          },
+          "disclaimer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "title": "Suggestion"
+      },
+      "SuspectedDisease": {
+        "properties": {
+          "disease_id": {
+            "type": "string",
+            "title": "Disease Id"
+          },
+          "zh_name": {
+            "type": "string",
+            "title": "Zh Name"
+          },
+          "en_name": {
+            "type": "string",
+            "title": "En Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "disease_id",
+          "zh_name",
+          "en_name"
+        ],
+        "title": "SuspectedDisease"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "title": "ErrorResponse",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "error_code",
+          "message",
+          "detail"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
+}

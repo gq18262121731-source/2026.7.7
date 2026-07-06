@@ -1,0 +1,527 @@
+{
+  "info": {
+    "name": "Agri UAV Disease External Integration Package",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "移动端 / 大屏 / 主系统对外联调集合。示例统一使用 BASE_URL 和 TOKEN。"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://test-api.example.com"
+    },
+    {
+      "key": "TOKEN",
+      "value": "replace-with-your-token"
+    },
+    {
+      "key": "field_id",
+      "value": "SQ_FIELD_001"
+    },
+    {
+      "key": "plot_id",
+      "value": "plot_001"
+    },
+    {
+      "key": "record_id",
+      "value": "rec_001"
+    },
+    {
+      "key": "disease_id",
+      "value": "bacterial_leaf_blight"
+    },
+    {
+      "key": "model_class",
+      "value": "uav_blb"
+    },
+    {
+      "key": "alert_id",
+      "value": "alert_001"
+    },
+    {
+      "key": "uav_task_id",
+      "value": "uav_001"
+    },
+    {
+      "key": "region_id",
+      "value": "region_001"
+    },
+    {
+      "key": "report_id",
+      "value": "report_001"
+    },
+    {
+      "key": "task_id",
+      "value": "batch_001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Quick Start",
+      "item": [
+        {
+          "name": "Healthz",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/healthz"
+          }
+        },
+        {
+          "name": "Models Status",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/models/status"
+          }
+        },
+        {
+          "name": "Agent LLM Status",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/agent/llm-status"
+          }
+        },
+        {
+          "name": "Demo Safety",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/models/demo-safety"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mobile",
+      "item": [
+        {
+          "name": "Detect Image",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "source_type",
+                  "value": "phone_rgb",
+                  "type": "text"
+                },
+                {
+                  "key": "model_hint",
+                  "value": "phone",
+                  "type": "text"
+                },
+                {
+                  "key": "target_type",
+                  "value": "disease",
+                  "type": "text"
+                },
+                {
+                  "key": "plot_name",
+                  "value": "联调测试田块",
+                  "type": "text"
+                },
+                {
+                  "key": "region_name",
+                  "value": "人工上传",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{BASE_URL}}/api/detect/image"
+          }
+        },
+        {
+          "name": "Mobile Record Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/records/{{record_id}}"
+          }
+        },
+        {
+          "name": "Mobile Suggestion",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/suggestions/{{record_id}}"
+          }
+        },
+        {
+          "name": "Knowledge Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"白叶枯病的典型症状是什么？\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"top_k\": 5\n}"
+            },
+            "url": "{{BASE_URL}}/api/knowledge/search"
+          }
+        },
+        {
+          "name": "Knowledge Context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"为什么识别结果提示可能是白叶枯？\",\n  \"record_id\": \"{{record_id}}\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"model_class\": \"{{model_class}}\",\n  \"confidence\": 0.78,\n  \"source_type\": \"phone_rgb\",\n  \"top_k\": 5,\n  \"include_knowledge_chunks\": true,\n  \"include_graph\": true,\n  \"include_relations\": true\n}"
+            },
+            "url": "{{BASE_URL}}/api/agent/knowledge-context"
+          }
+        },
+        {
+          "name": "Diagnosis Report Free QA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"record_id\": \"{{record_id}}\",\n  \"disease_id\": \"{{disease_id}}\",\n  \"model_class\": \"{{model_class}}\",\n  \"confidence\": 0.78,\n  \"source_type\": \"phone_rgb\",\n  \"user_question\": \"这个结果能不能直接作为用药依据？\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/agent/diagnosis-report"
+          }
+        },
+        {
+          "name": "Optional Mobile Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/overview?user_id=demo_user"
+          }
+        },
+        {
+          "name": "Optional Mobile Plots",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/plots?user_id=demo_user"
+          }
+        },
+        {
+          "name": "Optional Mobile Plot Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/plots/{{plot_id}}"
+          }
+        },
+        {
+          "name": "Optional Phone Followup",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "field_id",
+                  "value": "{{field_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "uav_task_id",
+                  "value": "{{uav_task_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "source_type",
+                  "value": "phone_followup",
+                  "type": "text"
+                },
+                {
+                  "key": "model_hint",
+                  "value": "phone",
+                  "type": "text"
+                },
+                {
+                  "key": "target_type",
+                  "value": "disease",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{BASE_URL}}/api/uav/abnormal-regions/{{region_id}}/phone-followup"
+          }
+        },
+        {
+          "name": "Optional Mobile Alerts",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/mobile/alerts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/summary"
+          }
+        },
+        {
+          "name": "Dashboard Plots",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/plots"
+          }
+        },
+        {
+          "name": "Dashboard Plot Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/plots/{{plot_id}}"
+          }
+        },
+        {
+          "name": "Dashboard Heatmap",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/heatmap"
+          }
+        },
+        {
+          "name": "Dashboard Disease Statistics",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/disease-statistics"
+          }
+        },
+        {
+          "name": "Dashboard Latest Records",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/latest-records?limit=10"
+          }
+        },
+        {
+          "name": "Dashboard Latest Alerts",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/dashboard/latest-alerts?limit=10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Main System",
+      "item": [
+        {
+          "name": "Create Field",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field_id\": \"{{field_id}}\",\n  \"field_name\": \"宿迁一号田\",\n  \"location_city\": \"宿迁市\",\n  \"location_district\": \"宿城区\",\n  \"location_town\": \"示范镇\",\n  \"center_lat\": 33.51,\n  \"center_lng\": 118.48,\n  \"current_growth_stage\": \"分蘖期\",\n  \"notes\": \"外部联调田块\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/fields"
+          }
+        },
+        {
+          "name": "List Fields",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/fields?status=active&page=1&page_size=20"
+          }
+        },
+        {
+          "name": "Field Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/fields/{{field_id}}"
+          }
+        },
+        {
+          "name": "Create UAV Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field_id\": \"{{field_id}}\",\n  \"task_name\": \"宿迁一号田 UAV dry-run 巡检\",\n  \"sensor_type\": \"multispectral\",\n  \"data_mode\": \"dry_run\",\n  \"growth_stage\": \"分蘖期\",\n  \"weather_text\": \"阴天，湿度较高\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/uav/tasks"
+          }
+        },
+        {
+          "name": "List UAV Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/uav/tasks?field_id={{field_id}}"
+          }
+        },
+        {
+          "name": "UAV Task Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/uav/tasks/{{uav_task_id}}"
+          }
+        },
+        {
+          "name": "Run UAV Dry Run",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field_id\": \"{{field_id}}\",\n  \"task_name\": \"宿迁一号田 UAV dry-run 巡检\",\n  \"sensor_type\": \"multispectral\",\n  \"growth_stage\": \"分蘖期\",\n  \"weather_text\": \"阴天，湿度较高\",\n  \"dry_run_profile\": \"moderate_abnormal\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/uav/tasks/{{uav_task_id}}/dry-run"
+          }
+        },
+        {
+          "name": "List Abnormal Regions",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/uav/tasks/{{uav_task_id}}/abnormal-regions"
+          }
+        },
+        {
+          "name": "Abnormal Region Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/uav/abnormal-regions/{{region_id}}"
+          }
+        },
+        {
+          "name": "Risk Fusion Evaluate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field_id\": \"{{field_id}}\",\n  \"uav_task_id\": \"{{uav_task_id}}\",\n  \"abnormal_region_id\": \"{{region_id}}\",\n  \"phone_image_id\": \"img_phone_001\",\n  \"disease_type\": \"疑似白叶枯\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/risk/fusion/evaluate"
+          }
+        },
+        {
+          "name": "Generate Inspection Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field_id\": \"{{field_id}}\",\n  \"uav_task_id\": \"{{uav_task_id}}\",\n  \"include_rag\": true,\n  \"include_risk\": true\n}"
+            },
+            "url": "{{BASE_URL}}/api/inspection-reports/generate"
+          }
+        },
+        {
+          "name": "List Inspection Reports",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/inspection-reports?field_id={{field_id}}"
+          }
+        },
+        {
+          "name": "Inspection Report Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/inspection-reports/{{report_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "item": [
+        {
+          "name": "Alert List",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/alerts"
+          }
+        },
+        {
+          "name": "Alert Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/alerts/{{alert_id}}"
+          }
+        },
+        {
+          "name": "Resolve Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operator_id\": \"demo_user\",\n  \"operator_name\": \"联调用户\",\n  \"note\": \"已通知农技人员复核\"\n}"
+            },
+            "url": "{{BASE_URL}}/api/alerts/{{alert_id}}/resolve"
+          }
+        },
+        {
+          "name": "Alert Actions",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/alerts/{{alert_id}}/actions"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "disease_id": "rice_blast",
+  "zh_name": "稻瘟病",
+  "en_name": "Rice blast",
+  "aliases": ["blast", "leaf blast", "Magnaporthe blast", "稻热病"],
+  "pathogen_type": "fungus",
+  "pathogen_name": "Magnaporthe oryzae",
+  "affected_crop": ["rice"],
+  "affected_parts": ["leaf", "node", "panicle neck", "collar"],
+  "typical_symptoms": ["叶片梭形病斑", "病斑中央灰白边缘褐色", "穗颈或节部坏死"],
+  "early_symptoms": ["小型褐色或灰绿色斑点", "湿度高时病斑扩展较快"],
+  "late_symptoms": ["叶片病斑融合", "穗颈瘟造成白穗或秕谷", "节瘟导致植株折断风险升高"],
+  "similar_diseases": ["brown_spot", "narrow_brown_leaf_spot", "bacterial_leaf_blight"],
+  "favorable_conditions": ["高湿和叶面长时间结露", "夜间温度偏低且昼夜温差较大", "氮肥偏多", "易感品种"],
+  "transmission": ["病残体和种子带菌", "分生孢子随风雨传播", "田间气流传播"],
+  "risk_notes": ["phone 近距离识别适合观察叶片病斑形态，但不能覆盖穗颈瘟全貌", "需和褐斑病等斑点病害区分"],
+  "management_suggestions": ["选用抗病品种并做好种子处理", "避免氮肥过量并平衡施肥", "加强田间通风和水肥管理", "流行风险较高时咨询当地植保部门制定防控方案"],
+  "model_class_mapping": ["rice_blast", "blast", "leaf_blast", "phone_rice_blast"],
+  "evidence_sources": ["src_irri_blast", "src_cabi_blast", "src_internal_v06"],
+  "authority_level": "A",
+  "last_updated": "2026-07-03"
+}

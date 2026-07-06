@@ -1,0 +1,2 @@
+image_id,device_type,phone_model,capture_time,plot_id,region_name,growth_stage,plant_part,shoot_distance,light_condition,disease_label,severity_label,source_file,notes
+example_phone_20260622_0001,phone,unknown,2026-06-22T10:30:00+08:00,example_plot_B,示例乡镇,分蘖期,leaf,near,自然光,unknown,unknown,examples/not_for_training/phone_20260622_0001.jpg,示例数据-不得混入真实训练集
