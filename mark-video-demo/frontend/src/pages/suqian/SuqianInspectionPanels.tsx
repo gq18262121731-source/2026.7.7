@@ -242,18 +242,22 @@ export function PhoneFollowupPanel({
         </p>
 
         <div className="mt-5 grid gap-4 xl:grid-cols-2">
-          <DetailBlock title="复查绑定">
-            <InfoRow label="复查区域" value={selectedRegion?.region_id} />
-            <InfoRow label="绑定田块" value={field?.field_id} />
-            <InfoRow label="绑定任务" value={task?.uav_task_id} />
-            <InfoRow label="接口字段" value="source_type=phone_followup, model_hint=phone, target_type=disease" />
-          </DetailBlock>
-
           <DetailBlock title="协同判断">
-            <InfoRow label="UAV 判断" value={selectedRegion ? `${fallback(selectedRegion.source_index_type)} 指数异常` : null} />
+            <InfoRow label="无人机判断" value={selectedRegion ? `${fallback(selectedRegion.source_index_type)} 指数异常` : null} />
             <InfoRow label="手机复查" value={followup?.summary.main_disease} />
             <InfoRow label="融合结论" value={buildFusionConclusion(selectedRegion, followup)} />
             <InfoRow label="置信度" value={formatPercent(followup?.summary.max_confidence)} />
+          </DetailBlock>
+          <DetailBlock title="技术详情">
+            <details>
+              <summary className="cursor-pointer text-sm font-medium text-cyan-100">查看接口绑定字段</summary>
+              <div className="mt-3">
+                <InfoRow label="region_id" value={selectedRegion?.region_id} />
+                <InfoRow label="field_id" value={field?.field_id} />
+                <InfoRow label="uav_task_id" value={task?.uav_task_id} />
+                <InfoRow label="接口字段" value="source_type=phone_followup, model_hint=phone, target_type=disease" />
+              </div>
+            </details>
           </DetailBlock>
         </div>
       </PagePanel>
@@ -263,11 +267,17 @@ export function PhoneFollowupPanel({
         description="复查完成后，后端会把手机图像、识别记录和疑似病害写回当前异常区域。"
         status={<StatusBadge status={selectedRegion?.confirm_status === "phone_confirmed" ? "stable" : "preview"} label={selectedRegion?.confirm_status === "phone_confirmed" ? "已回写" : "待回写"} />}
       >
-      <div className="grid gap-4 xl:grid-cols-3">
-          <InfoRow label="linked_phone_image_id" value={selectedRegion?.linked_phone_image_id} />
-          <InfoRow label="linked_record_id" value={selectedRegion?.linked_record_id} />
-          <InfoRow label="confirmed_disease_type" value={selectedRegion?.confirmed_disease_type} />
+        <div className="grid gap-4 xl:grid-cols-2">
+          <InfoRow label="复查病害" value={selectedRegion?.confirmed_disease_type} />
+          <InfoRow label="回写状态" value={selectedRegion?.confirm_status} />
         </div>
+        <details className="mt-4 rounded-lg border border-slate-700/70 bg-slate-950/30 p-3">
+          <summary className="cursor-pointer text-sm font-medium text-cyan-100">技术详情</summary>
+          <div className="mt-3 grid gap-4 xl:grid-cols-2">
+            <InfoRow label="linked_phone_image_id" value={selectedRegion?.linked_phone_image_id} />
+            <InfoRow label="linked_record_id" value={selectedRegion?.linked_record_id} />
+          </div>
+        </details>
       </PagePanel>
     </div>
   );
@@ -295,12 +305,12 @@ export function ReportGenerationPanel({
   return (
     <PagePanel
       title="报告生成"
-      description="基于当前田块、UAV 指数异常、手机复查和 RAG 建议生成实验性巡检报告。"
+      description="基于当前田块、无人机异常、手机复查和报告中的智能建议生成实验性巡检报告。"
       status={<StatusBadge status={report ? "stable" : "preview"} label={report ? "已有报告" : "待生成"} />}
       action={<ActionButton label={report ? "重新生成报告" : "生成实验性巡检报告"} loading={loadingStep === "report"} disabled={!field || !task} onClick={onGenerateReport} />}
     >
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <OverviewStat label="UAV 任务" value={task ? "已完成" : "未创建"} tone={task ? "green" : "amber"} />
+        <OverviewStat label="巡检任务" value={task ? "已完成" : "未创建"} tone={task ? "green" : "amber"} />
         <OverviewStat label="指数分析" value={dryRun ? "已完成" : "未执行"} tone={dryRun ? "green" : "amber"} />
         <OverviewStat label="异常区域" value={`${regions.length} 个`} tone={regions.length ? "cyan" : "slate"} />
         <OverviewStat label="手机复查" value={`${confirmedCount}/${regions.length || 0}`} tone={confirmedCount ? "green" : "amber"} />
@@ -321,18 +331,18 @@ function getNextAction(
   report: InspectionReport | null
 ) {
   if (!field) return "还没有确认巡检田块，请先加载示范田块，开始本次演示流程。";
-  if (!task) return "田块已就绪，下一步创建本次 UAV 巡检任务。";
-  if (!dryRun) return "UAV 任务已创建，下一步执行 NDVI / NDRE 指数分析，发现需要复查的异常区域。";
+  if (!task) return "田块已就绪，下一步创建本次无人机巡检任务。";
+  if (!dryRun) return "无人机任务已创建，下一步执行 NDVI / NDRE 指数分析，发现需要复查的异常区域。";
   if (regions.length > 0 && !followup) return "已发现异常区域，请选择一个区域进入手机近景复查，形成多源协同证据。";
   if (!report) return "已有巡检证据，下一步可生成实验性巡检报告，完成闭环归档。";
   return "本次巡检已形成报告闭环，可在报告中心查看详情或刷新历史记录。";
 }
 
 function buildFusionConclusion(region: AbnormalRegion | null, followup: DetectionResult | null) {
-  if (!region) return "请先在 UAV 异常中选择区域";
+  if (!region) return "请先在无人机异常中选择区域";
   if (!followup) return "等待手机近景复查";
   if (followup.summary.risk_level === "high" || followup.summary.risk_level === "高") return "手机复查提示风险升高，建议人工复核";
-  if (followup.summary.main_disease) return "UAV 异常已获得手机复查证据";
+  if (followup.summary.main_disease) return "无人机异常已获得手机复查证据";
   return "手机复查未形成明确病害结论，建议人工确认";
 }
 
@@ -388,7 +398,7 @@ export function FieldTaskPanel({ field, task, loadingStep, onEnsureField, onCrea
   return (
     <PagePanel
       title="巡检对象"
-      description="先确认田块，再创建本次 UAV 巡检任务。"
+      description="先确认田块，再创建本次无人机巡检任务。"
       status={<StatusBadge status={field ? "stable" : "preview"} label={field ? "田块已就绪" : "待建档"} />}
     >
       <div className="grid gap-4 xl:grid-cols-2">
@@ -399,7 +409,6 @@ export function FieldTaskPanel({ field, task, loadingStep, onEnsureField, onCrea
           loading={loadingStep === "field"}
           onAction={onEnsureField}
         >
-          <InfoRow label="田块编号" value={field?.field_id} />
           <InfoRow label="田块名称" value={field?.field_name} />
           <InfoRow label="地区" value={field ? `${field.location_city} ${field.location_district ?? ""}` : null} />
           <InfoRow label="生育期" value={field?.current_growth_stage} />
@@ -407,20 +416,26 @@ export function FieldTaskPanel({ field, task, loadingStep, onEnsureField, onCrea
         </OperationBlock>
 
         <OperationBlock
-          title="UAV 巡检任务"
+          title="无人机巡检任务"
           icon={<Plane className="h-5 w-5" />}
           actionLabel={task ? "重新创建任务" : "创建任务"}
           loading={loadingStep === "task"}
           disabled={!field}
           onAction={onCreateTask}
         >
-          <InfoRow label="任务编号" value={task?.uav_task_id} />
-          <InfoRow label="数据模式" value={task?.data_mode} />
           <InfoRow label="传感器" value={task?.sensor_type} />
           <InfoRow label="状态" value={task?.status} />
           <InfoRow label="说明" value={task?.summary} />
         </OperationBlock>
       </div>
+      <details className="mt-4 rounded-lg border border-slate-700/70 bg-slate-950/30 p-3">
+        <summary className="cursor-pointer text-sm font-medium text-cyan-100">技术详情</summary>
+        <div className="mt-3 grid gap-4 xl:grid-cols-2">
+          <InfoRow label="field_id" value={field?.field_id} />
+          <InfoRow label="uav_task_id" value={task?.uav_task_id} />
+          <InfoRow label="data_mode" value={task?.data_mode} />
+        </div>
+      </details>
     </PagePanel>
   );
 }
@@ -450,7 +465,7 @@ export function IndexAndRegionPanel({ dryRun, regions, selectedRegion, loadingSt
           {(dryRun?.indices ?? []).map((item) => (
             <IndexPanel key={item.index_result_id} item={item} />
           ))}
-          {!dryRun && <EmptyState description="创建 UAV 任务后执行指数分析，这里会出现指数图、阈值和异常面积占比。" />}
+          {!dryRun && <EmptyState description="创建无人机任务后执行指数分析，这里会出现指数图、阈值和异常面积占比。" />}
         </div>
         {dryRun?.mock_safety_note && <p className="mt-3 text-xs leading-5 text-amber-100/80">{dryRun.mock_safety_note}</p>}
       </PagePanel>
@@ -687,7 +702,7 @@ function IndexPanel({ item }: { item: UavIndexResult }) {
         <span className="font-semibold uppercase text-white">{item.index_type}</span>
         <StatusPill label={item.data_mode} tone="amber" />
       </div>
-      <img src={absoluteAssetUrl(item.index_image_url)} alt={`${item.index_type} dry-run`} className="h-32 w-full rounded-lg object-cover" />
+      <img src={absoluteAssetUrl(item.index_image_url)} alt={`${item.index_type} 演示分析`} className="h-32 w-full rounded-lg object-cover" />
       <div className="mt-3 space-y-1 text-sm text-slate-400">
         <div>异常面积占比：{formatPercent(item.abnormal_area_ratio)}</div>
         <div>阈值：{fallback(item.threshold_used?.toString())}</div>
