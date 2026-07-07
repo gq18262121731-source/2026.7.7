@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,12 +14,14 @@ from app.api import (
     dashboard_api,
     detection_api,
     experimental_uav_blb_segmentation_api,
+    farm_analysis_report_api,
     field_api,
     farm_operation_api,
     growth_stage_api,
     inspection_report_api,
     mobile_api,
     prediction_api,
+    reports,
     records_api,
     risk_fusion_api,
     status_api,
@@ -34,17 +37,20 @@ from app.core.exceptions import AppException
 from app.core.logger import logger, setup_logging
 from app.database.database import init_db
 from app.services.storage.file_storage import file_storage_service
+from app.services.report_storage_service import report_storage_service
 
 
 def create_app() -> FastAPI:
     setup_logging()
     file_storage_service.ensure_dirs()
+    report_storage_service.ensure_dirs()
     init_db()
 
     app = FastAPI(title=settings.app_name, version=settings.app_version)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
+        allow_origin_regex=settings.cors_allow_origin_regex,
         allow_credentials=settings.cors_allow_credentials,
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,
@@ -63,6 +69,8 @@ def create_app() -> FastAPI:
     app.include_router(dashboard_api.router)
     app.include_router(mobile_api.router)
     app.include_router(prediction_api.router)
+    app.include_router(farm_analysis_report_api.router)
+    app.include_router(reports.router)
     app.include_router(risk_fusion_api.router)
     app.include_router(weather_api.router)
     app.include_router(growth_stage_api.router)
@@ -92,7 +100,7 @@ def create_app() -> FastAPI:
                 "success": False,
                 "error_code": "VALIDATION_ERROR",
                 "message": "\u8bf7\u6c42\u53c2\u6570\u6821\u9a8c\u5931\u8d25",
-                "detail": {"errors": exc.errors()},
+                "detail": {"errors": jsonable_encoder(exc.errors())},
             },
         )
 

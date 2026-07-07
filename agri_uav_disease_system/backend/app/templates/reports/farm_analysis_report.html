@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <style>{{ report_css }}</style>
+</head>
+<body>
+  <section class="page">
+    <h1>{{ title }}</h1>
+    <p class="subtitle">基于无人机巡检、手机近景识别、天气环境、历史记录与水稻病虫害知识库的辅助分析报告。</p>
+    <div class="meta">
+      <div><span>报告编号</span><strong>{{ report_id }}</strong></div>
+      <div><span>生成时间</span><strong>{{ created_at }}</strong></div>
+      <div><span>地块</span><strong>{{ plot_name }}</strong></div>
+      <div><span>作物</span><strong>水稻</strong></div>
+      <div><span>报告类型</span><strong>{{ report_type }}</strong></div>
+      <div><span>关注等级</span><strong>{{ attention_level }}</strong></div>
+    </div>
+    <div class="notice">本报告为辅助分析结果，不作为最终农事处置依据；需要结合现场复核、当地农技人员意见与后续样本继续判断。</div>
+  </section>
+
+  <section class="page">
+    <h2>摘要与证据链</h2>
+    <div class="cards">
+      {% for item in summary_cards %}
+        <div class="metric"><span>{{ item.label }}</span><strong>{{ item.value }}</strong><small>{{ item.note }}</small></div>
+      {% endfor %}
+    </div>
+    <h3>综合摘要</h3>
+    <p>{{ summary }}</p>
+    <h3>证据来源构成</h3>
+    <div class="evidence-grid">
+      {% for item in evidence_sources %}
+        <div class="source-chip"><b>{{ item.label }}</b><span>{{ item.status }}</span></div>
+      {% endfor %}
+    </div>
+    <h3>风险/关注等级图形化展示</h3>
+    {% if risk_distribution %}
+      <div class="risk-grid">
+        {% for item in risk_distribution %}
+          <div class="risk-chip"><b>{{ item.label }}</b><span>{{ item.value }}</span></div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="risk-grid">
+        {% for item in attention_cards %}
+          <div class="risk-chip"><b>{{ item.label }}</b><span>{{ item.value }}</span></div>
+        {% endfor %}
+      </div>
+      <p class="soft">{{ insufficient_history_message }}</p>
+    {% endif %}
+  </section>
+
+  <section class="page">
+    <h2>天气与检测结果</h2>
+    <div class="weather-grid">
+      {% for item in weather_cards %}
+        <div class="weather-card"><span>{{ item.label }}</span><strong>{{ item.value }}</strong></div>
+      {% endfor %}
+    </div>
+    <h3>天气分析</h3>
+    <p>{{ weather_analysis }}</p>
+    <h3>当前检测记录</h3>
+    {% if detection_rows %}
+      <table>
+        <thead><tr><th>类别</th><th>置信度</th><th>严重度</th><th>风险</th></tr></thead>
+        <tbody>
+          {% for item in detection_rows %}
+            <tr><td>{{ item.label }}</td><td>{{ "%.0f%%"|format((item.confidence or 0) * 100) }}</td><td>{{ item.severity }}</td><td>{{ item.risk_level }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="callout">当前记录未返回明确检测框或类别。</div>
+    {% endif %}
+    <h3>当前检测置信度图</h3>
+    {% if confidence_chart %}
+      {% for item in confidence_chart %}
+        <div class="bar-row"><span>{{ item.label }}</span><div class="bar"><i style="width: {{ item.percent }}%"></i></div><b>{{ item.percent|round|int }}%</b></div>
+      {% endfor %}
+    {% else %}
+      <div class="callout">缺少检测框置信度数据。</div>
+    {% endif %}
+  </section>
+
+  <section class="page">
+    <h2>历史记录与知识依据</h2>
+    <div class="grid-2">
+      <div>
+        <h3>近 {{ include_history_days }} 天检测趋势</h3>
+        {% if history_sufficient and history_rows %}
+          <table>
+            <thead><tr><th>日期</th><th>检测次数</th><th>异常次数</th></tr></thead>
+            <tbody>
+              {% for item in history_rows %}
+                <tr><td>{{ item.date }}</td><td>{{ item.total }}</td><td>{{ item.abnormal }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="callout">{{ insufficient_history_message }}</div>
+        {% endif %}
+      </div>
+      <div>
+        <h3>历史分析</h3>
+        <p>{{ history_analysis }}</p>
+      </div>
+    </div>
+    <h3>RAG 知识库片段</h3>
+    <ul class="rag-list">
+      {% if rag_chunks %}
+        {% for item in rag_chunks %}
+          <li><strong>{{ item.title }}</strong><p>{{ item.content }}</p><small>{{ item.authority_level }} / {{ item.section_type }}</small></li>
+        {% endfor %}
+      {% else %}
+        <li>未检索到足够知识库依据，本报告不补写未提供的知识证据。</li>
+      {% endif %}
+    </ul>
+  </section>
+
+  <section class="page">
+    <h2>结论边界与附录</h2>
+    <h3>综合结论</h3>
+    <p>{{ conclusion }}</p>
+    <h3>不确定性说明</h3>
+    <ul>
+      {% for item in uncertainty %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    <h3>模型与生成参数</h3>
+    <table>
+      <tbody>
+        <tr><th>LLM 模式</th><td>{{ llm_mode }}</td></tr>
+        <tr><th>LLM fallback</th><td>{{ fallback_used }}</td></tr>
+        <tr><th>PDF fallback</th><td>{{ pdf_fallback_used }}</td></tr>
+        <tr><th>记录 ID</th><td>{{ record_id }}</td></tr>
+      </tbody>
+    </table>
+  </section>
+</body>
+</html>

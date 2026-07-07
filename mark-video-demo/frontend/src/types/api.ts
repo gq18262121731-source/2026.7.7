@@ -12,6 +12,16 @@ export interface PlatformModel {
   warning?: string | null;
   usage_scope?: string | null;
   formal_metric_available?: boolean | null;
+  model_status?: string | null;
+  capability_level?: string | null;
+  fallback_used?: boolean | null;
+  is_mock?: boolean | null;
+  target_type?: string | null;
+  allow_dashboard_statistics?: boolean | null;
+  allow_latest_alerts?: boolean | null;
+  allow_backend_demo_claim?: boolean | null;
+  allow_candidate_claim?: boolean | null;
+  allow_official_metric_claim?: boolean | null;
 }
 
 export interface DetectionBox {
@@ -52,17 +62,37 @@ export interface DetectionRecord {
   };
   processing_status: string;
   backend_record_id?: string;
+  field_id?: string | null;
+  plot_id?: string | null;
+  plot_name?: string | null;
+  region_name?: string | null;
+  source_type?: string | null;
+  target_type?: string | null;
+  lng?: number | null;
+  lat?: number | null;
+  model_name?: string | null;
+  model_version?: string | null;
   result_image_url?: string;
   detector_mode?: string;
   model_stage?: string;
   fallback_to_mock?: boolean;
   formal_metric_available?: boolean;
+  model_status?: string | null;
+  allow_dashboard_statistics?: boolean | null;
+  allow_latest_alerts?: boolean | null;
+  allow_backend_demo_claim?: boolean | null;
+  allow_candidate_claim?: boolean | null;
+  allow_official_metric_claim?: boolean | null;
+  dashboard_exclusion_reason?: string | null;
+  latest_alerts_exclusion_reason?: string | null;
 }
 
 export interface BackendDetection {
   class_id: number;
   label: string;
   class_name?: string | null;
+  class_code?: string | null;
+  category_type?: string | null;
   confidence: number;
   bbox: [number, number, number, number];
   area_ratio: number;
@@ -91,10 +121,19 @@ export interface BackendDetectionResult {
   fallback_to_mock: boolean;
   model_hint?: string | null;
   target_type?: string | null;
+  geo?: { lng?: number | null; lat?: number | null };
   model_display_name?: string | null;
   model_warning?: string | null;
   model_usage_scope?: string | null;
   model_capability_level?: string | null;
+  model_status?: string | null;
+  allow_dashboard_statistics?: boolean | null;
+  allow_latest_alerts?: boolean | null;
+  allow_backend_demo_claim?: boolean | null;
+  allow_candidate_claim?: boolean | null;
+  allow_official_metric_claim?: boolean | null;
+  dashboard_exclusion_reason?: string | null;
+  latest_alerts_exclusion_reason?: string | null;
   detections: BackendDetection[];
   summary: {
     disease_count: number;
@@ -137,7 +176,12 @@ export interface DashboardSummary {
     source_type?: string | null;
     model_name?: string | null;
     model_stage?: string | null;
+    model_status?: string | null;
     fallback_to_mock?: boolean;
+    allow_dashboard_statistics?: boolean | null;
+    allow_latest_alerts?: boolean | null;
+    dashboard_exclusion_reason?: string | null;
+    latest_alerts_exclusion_reason?: string | null;
   }>;
   latest_alerts: Array<{
     alert_id: string;
@@ -166,6 +210,17 @@ export interface ModelPathStatus {
   warning?: string | null;
   usage_scope?: string | null;
   capability_level?: string | null;
+  model_status?: string | null;
+  fallback_used?: boolean | null;
+  is_mock?: boolean | null;
+  target_type?: string | null;
+  allow_dashboard_statistics?: boolean | null;
+  allow_latest_alerts?: boolean | null;
+  allow_backend_demo_claim?: boolean | null;
+  allow_candidate_claim?: boolean | null;
+  allow_official_metric_claim?: boolean | null;
+  dashboard_exclusion_reason?: string | null;
+  latest_alerts_exclusion_reason?: string | null;
 }
 
 export interface ModelsStatusResponse {
@@ -174,6 +229,7 @@ export interface ModelsStatusResponse {
   active_model_version: string;
   phone_model: ModelPathStatus;
   phone_experimental_model: ModelPathStatus;
+  phone_tungro_experimental_policy?: ModelPathStatus;
   uav_crop_model: ModelPathStatus;
   uav_blb_model: ModelPathStatus;
   uav_blb_experimental_model: ModelPathStatus;
@@ -207,6 +263,16 @@ export interface SystemStatusResponse {
   error_message?: string | null;
 }
 
+export interface LLMStatusResponse {
+  llm_mode: string;
+  llm_provider: string;
+  llm_model: string;
+  json_response_format_enabled: boolean;
+  mock_fallback_enabled: boolean;
+  api_key_configured: boolean;
+  prompt_version: string;
+}
+
 export interface DiagnosisReportRequest {
   record_id?: string | null;
   disease_id?: string | null;
@@ -214,6 +280,12 @@ export interface DiagnosisReportRequest {
   confidence?: number | null;
   source_type?: string | null;
   user_question?: string | null;
+  field_id?: string | null;
+  plot_id?: string | null;
+  uav_task_id?: string | null;
+  abnormal_region_id?: string | null;
+  risk_level?: string | null;
+  severity?: string | null;
 }
 
 export interface DiagnosisReportResponse {
@@ -240,6 +312,52 @@ export interface DiagnosisReportResponse {
   prompt_version: string;
   fallback_used: boolean;
   api_error_type?: string | null;
+}
+
+export type FarmAnalysisReportType = "record_analysis" | "plot_analysis" | "daily_summary";
+
+export interface FarmAnalysisReportRequest {
+  plot_id: string;
+  record_id?: string | null;
+  crop: "rice";
+  include_weather: boolean;
+  include_history_days: number;
+  report_type: FarmAnalysisReportType;
+}
+
+export interface FarmAnalysisReportResponse {
+  success: boolean;
+  report_id: string;
+  status: "success" | "fallback" | "failed";
+  summary: string;
+  pdf_url: string;
+  preview_url: string;
+  fallback_used: boolean;
+  weather_available: boolean;
+  rag_available: boolean;
+  pdf_fallback_used: boolean;
+  created_at: string;
+}
+
+export interface FarmAnalysisReportHistoryItem {
+  report_id: string;
+  plot_id: string;
+  record_id?: string | null;
+  report_type: FarmAnalysisReportType;
+  crop: string;
+  summary: string;
+  pdf_url: string;
+  preview_url: string;
+  fallback_used: boolean;
+  weather_available: boolean;
+  rag_available: boolean;
+  pdf_fallback_used: boolean;
+  created_at: string;
+}
+
+export interface FarmAnalysisReportHistoryResponse {
+  items: FarmAnalysisReportHistoryItem[];
+  total: number;
 }
 
 export interface DiseaseListItem {

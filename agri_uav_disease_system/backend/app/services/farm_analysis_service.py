@@ -1,0 +1,3 @@
+from app.services.farm_analysis_report_service import FarmAnalysisReportService, farm_analysis_report_service
+
+farm_analysis_service = farm_analysis_report_service

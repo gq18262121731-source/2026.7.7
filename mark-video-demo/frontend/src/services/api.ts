@@ -10,6 +10,10 @@ import type {
   DiagnosisReportRequest,
   DiagnosisReportResponse,
   DiseaseListItem,
+  FarmAnalysisReportHistoryResponse,
+  FarmAnalysisReportRequest,
+  FarmAnalysisReportResponse,
+  LLMStatusResponse,
   ModelPathStatus,
   ModelsStatusResponse,
   PlatformModel,
@@ -102,7 +106,17 @@ function modelToPlatform(model: ModelPathStatus): PlatformModel {
     model_stage: model.model_stage,
     warning: model.warning,
     usage_scope: model.usage_scope,
-    formal_metric_available: model.formal_metric_available
+    formal_metric_available: model.formal_metric_available,
+    model_status: model.model_status,
+    capability_level: model.capability_level,
+    fallback_used: model.fallback_used,
+    is_mock: model.is_mock,
+    target_type: model.target_type ?? model.current_target_type,
+    allow_dashboard_statistics: model.allow_dashboard_statistics,
+    allow_latest_alerts: model.allow_latest_alerts,
+    allow_backend_demo_claim: model.allow_backend_demo_claim,
+    allow_candidate_claim: model.allow_candidate_claim,
+    allow_official_metric_claim: model.allow_official_metric_claim
   };
 }
 
@@ -113,6 +127,16 @@ export function mapDetectionResult(item: BackendDetectionResult): DetectionRecor
   return {
     task_id: item.record_id,
     backend_record_id: item.record_id,
+    field_id: item.field_id,
+    plot_id: item.plot_id,
+    plot_name: item.plot_name,
+    region_name: item.region_name,
+    source_type: item.source_type,
+    target_type: item.target_type ?? item.current_target_type,
+    lng: item.geo?.lng ?? null,
+    lat: item.geo?.lat ?? null,
+    model_name: item.model_name,
+    model_version: item.model_version,
     status: "completed",
     created_at: item.timestamp,
     operator: "system_user",
@@ -120,6 +144,14 @@ export function mapDetectionResult(item: BackendDetectionResult): DetectionRecor
     model_stage: item.model_stage,
     fallback_to_mock: item.fallback_to_mock,
     formal_metric_available: item.formal_metric_available,
+    model_status: item.model_status,
+    allow_dashboard_statistics: item.allow_dashboard_statistics,
+    allow_latest_alerts: item.allow_latest_alerts,
+    allow_backend_demo_claim: item.allow_backend_demo_claim,
+    allow_candidate_claim: item.allow_candidate_claim,
+    allow_official_metric_claim: item.allow_official_metric_claim,
+    dashboard_exclusion_reason: item.dashboard_exclusion_reason,
+    latest_alerts_exclusion_reason: item.latest_alerts_exclusion_reason,
     result_image_url: assetUrl(item.result_image_url),
     model: {
       key: item.model_name,
@@ -130,7 +162,16 @@ export function mapDetectionResult(item: BackendDetectionResult): DetectionRecor
       model_stage: item.model_stage,
       warning: item.model_warning,
       usage_scope: item.model_usage_scope,
-      formal_metric_available: item.formal_metric_available
+      formal_metric_available: item.formal_metric_available,
+      model_status: item.model_status,
+      capability_level: item.model_capability_level,
+      fallback_used: item.fallback_to_mock,
+      target_type: item.target_type ?? item.current_target_type,
+      allow_dashboard_statistics: item.allow_dashboard_statistics,
+      allow_latest_alerts: item.allow_latest_alerts,
+      allow_backend_demo_claim: item.allow_backend_demo_claim,
+      allow_candidate_claim: item.allow_candidate_claim,
+      allow_official_metric_claim: item.allow_official_metric_claim
     },
     image: {
       sample_key: item.image_id,
@@ -184,9 +225,15 @@ export const api = {
   },
   health: () => requestJson<{ status: string }>("/healthz"),
   systemStatus: () => requestJson<SystemStatusResponse>(endpoint("/status")),
+  llmStatus: () => requestJson<LLMStatusResponse>(endpoint("/agent/llm-status")),
   modelStatus: () => requestJson<ModelsStatusResponse>(endpoint("/models/status")),
   demoSafety: () => requestJson<DemoSafetyStatus>(endpoint("/models/demo-safety")),
   dashboardSummary: () => requestJson<DashboardSummary>(endpoint("/dashboard/summary")),
+  latestRecords: async (limit = 8) => {
+    const res = await requestJson<RecordListResponse>(endpoint(`/records?page=1&page_size=${limit}`));
+    return res.items.map(mapDetectionResult);
+  },
+  latestAlerts: (limit = 8) => requestJson<AlertPageResponse>(endpoint(`/alerts?page=1&page_size=${limit}`)),
   records: async (page = 1, pageSize = 20) => {
     const res = await requestJson<RecordListResponse>(endpoint(`/records?page=${page}&page_size=${pageSize}`));
     return {
@@ -222,6 +269,7 @@ export const api = {
       models: [
         status.phone_model,
         status.phone_experimental_model,
+        ...(status.phone_tungro_experimental_policy ? [status.phone_tungro_experimental_policy] : []),
         status.uav_crop_model,
         status.uav_blb_model,
         status.uav_blb_experimental_model,
@@ -237,6 +285,33 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload)
     }),
+  generateFarmAnalysisReport: (payload: FarmAnalysisReportRequest) =>
+    requestJson<FarmAnalysisReportResponse>(endpoint("/farm-analysis-reports/generate"), {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  getFarmAnalysisReportHistory: (params: { plot_id?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.plot_id) query.set("plot_id", params.plot_id);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return requestJson<FarmAnalysisReportHistoryResponse>(endpoint(`/farm-analysis-reports${suffix}`));
+  },
+  getFarmAnalysisReportDownloadUrl: (reportId: string) => `${API_ORIGIN}${endpoint(`/farm-analysis-reports/${encodeURIComponent(reportId)}/download`)}`,
+  getFarmAnalysisReportPreviewUrl: (reportId: string) => `${API_ORIGIN}${endpoint(`/farm-analysis-reports/${encodeURIComponent(reportId)}/preview`)}`,
+  farmAnalysisReportHistory: (params: { plot_id?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.plot_id) query.set("plot_id", params.plot_id);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return requestJson<FarmAnalysisReportHistoryResponse>(endpoint(`/farm-analysis-reports${suffix}`));
+  },
+  reportHistory: (params: { plot_id?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.plot_id) query.set("plot_id", params.plot_id);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return requestJson<FarmAnalysisReportHistoryResponse>(endpoint(`/farm-analysis-reports${suffix}`));
+  },
+  reportDownloadUrl: (reportId: string) => `${API_ORIGIN}${endpoint(`/farm-analysis-reports/${encodeURIComponent(reportId)}/download`)}`,
+  reportPreviewUrl: (reportId: string) => `${API_ORIGIN}${endpoint(`/farm-analysis-reports/${encodeURIComponent(reportId)}/preview`)}`,
   diseases: () => requestJson<{ items: DiseaseListItem[]; count: number }>(endpoint("/knowledge/diseases")),
   alerts: (page = 1, pageSize = 20, status?: string) => {
     const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
