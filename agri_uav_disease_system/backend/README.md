@@ -466,3 +466,47 @@ Prediction alerts and detection alerts are distinguished by `alert_source`:
 - `prediction`: alerts from medium/high prediction results, with `prediction_id` and `prediction_window_days`.
 
 `WS /ws/alerts` still pushes JSON only and never pushes images, base64, or video frames.
+
+## Farm Analysis PDF Deployment
+
+The farm analysis report agent uses HTML/CSS plus Playwright Chromium to produce the formal defense-ready PDF.
+
+Install runtime dependencies:
+
+```bash
+pip install -r requirements.txt
+python -m playwright install chromium
+```
+
+Start the backend for local validation:
+
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
+```
+
+Generate a report:
+
+```http
+POST /api/farm-analysis-reports/generate
+```
+
+When Chromium is installed and Playwright succeeds, the response contains:
+
+```json
+{
+  "pdf_quality": "official",
+  "pdf_fallback_used": false,
+  "pdf_quality_note": null
+}
+```
+
+If Chromium is not installed or Playwright PDF rendering fails, the system still writes a basic fallback PDF and returns:
+
+```json
+{
+  "pdf_quality": "fallback",
+  "pdf_quality_note": "PDF 生成使用兜底模板，非正式展示版。"
+}
+```
+
+The fallback PDF is only for basic download continuity. It should not be used as the formal defense display report.
