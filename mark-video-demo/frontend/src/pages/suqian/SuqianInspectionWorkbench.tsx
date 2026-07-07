@@ -42,7 +42,6 @@ export function SuqianInspectionWorkbench() {
   );
 
   useEffect(() => {
-    void ensureDemoField();
     void loadModelStatus();
   }, []);
 
@@ -63,7 +62,7 @@ export function SuqianInspectionWorkbench() {
     try {
       return await action();
     } catch (exc) {
-      setError(exc instanceof Error ? exc.message : "操作失败，请检查主后端服务状态");
+      setError(exc instanceof Error ? exc.message : "本步骤暂未接通后端，请检查主后端服务，或先使用页面中的示范流程说明。");
       return null;
     } finally {
       setLoadingStep(null);
@@ -147,7 +146,7 @@ export function SuqianInspectionWorkbench() {
     if (detail) setReport(detail);
   }
 
-  const currentStage = report ? "报告闭环" : followup ? "手机复查" : dryRun ? "异常发现" : task ? "UAV 任务" : field ? "田块建档" : "初始化";
+  const currentStage = report ? "报告闭环" : followup ? "手机复查" : dryRun ? "异常发现" : task ? "UAV 任务" : field ? "田块建档" : "待开始";
   const primaryAction = (() => {
     if (!field) return { label: "加载示范田块", run: () => void ensureDemoField() };
     if (!task) return { label: "创建 UAV 任务", run: () => void createTask() };
@@ -215,11 +214,11 @@ export function SuqianInspectionWorkbench() {
       <PageHeader
         eyebrow="协同巡检工作台"
         title="宿迁一号田多源巡检闭环"
-        description="围绕田块、UAV dry-run、手机复查和实验性报告形成一条可复核的证据链。"
+        description="点击“加载示范田块”后开始流程，按田块、无人机演示分析、手机复查和报告归档形成一条可复核的证据链。"
         badges={
           <>
             <StatusBadge status="preview" label={currentStage} />
-            <StatusBadge status="dry-run" />
+            <StatusBadge status="dry-run" label="演示分析" />
             <StatusBadge status={modelMode ?? "experimental"} />
           </>
         }
@@ -280,7 +279,7 @@ export function SuqianInspectionWorkbench() {
       <InspectionActionPanel items={actionItems} />
 
       <InspectionWorkflowLayout
-        footer={error ? <ErrorState title="主后端连接或操作失败" message={error} /> : null}
+        footer={error ? <ErrorState title="当前步骤暂不可用" message={error} /> : null}
         context={
           <InspectionContextPanel
             activeTab={activeTab}

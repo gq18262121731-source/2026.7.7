@@ -25,26 +25,29 @@ interface AppShellProps {
 }
 
 const navItems = [
-  { key: "dashboard", label: "工作台", icon: Home, description: "真实总览" },
-  { key: "suqian", label: "协同巡检", icon: MapPinned, description: "UAV + 手机" },
-  { key: "detect", label: "图像检测", icon: Gauge, description: "真实上传" },
+  { key: "dashboard", label: "工作台", icon: Home, description: "今日巡检入口" },
+  { key: "suqian", label: "协同巡检", icon: MapPinned, description: "主演示流程" },
+  { key: "detect", label: "图像检测", icon: Gauge, description: "备用单图入口" },
+  { key: "history", label: "记录中心", icon: History, description: "报告与留痕" },
+  { key: "assistant", label: "智能报告", icon: Bot, description: "诊断解释" }
+];
+
+const advancedNavItems = [
   { key: "batch", label: "批量检测", icon: Images, description: "后台任务" },
-  { key: "history", label: "记录中心", icon: History, description: "识别留痕" },
   { key: "alerts", label: "预警中心", icon: Bell, description: "治理闭环" },
   { key: "prediction", label: "风险预测", icon: TrendingUp, description: "规则评分" },
-  { key: "assistant", label: "知识助手", icon: Bot, description: "LLM / RAG" },
   { key: "settings", label: "系统状态", icon: Settings, description: "模型与安全" }
 ];
 
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
-  dashboard: { title: "工作台", subtitle: "集中查看真实后端返回的识别、风险、预警和模型状态" },
-  suqian: { title: "宿迁协同巡检", subtitle: "田块建档、UAV dry-run、手机复查与报告闭环" },
-  detect: { title: "图像检测", subtitle: "上传真实图片，调用主后端 /api/detect/image" },
+  dashboard: { title: "工作台", subtitle: "从今日巡检任务开始，按流程完成异常发现、手机复查和报告归档" },
+  suqian: { title: "宿迁协同巡检", subtitle: "田块建档、无人机演示分析、手机复查与报告闭环" },
+  detect: { title: "图像检测", subtitle: "上传真实图片或使用示范图片，调用主后端 /api/detect/image" },
   batch: { title: "批量检测", subtitle: "多图上传、后台任务进度和识别记录生成" },
   history: { title: "记录中心", subtitle: "追踪 /api/records 中的识别记录、模型阶段和安全边界" },
   alerts: { title: "预警中心", subtitle: "查询、查看和处理主后端真实 alert" },
   prediction: { title: "风险预测", subtitle: "规则风险评分，不展示为正式发病概率" },
-  assistant: { title: "知识助手", subtitle: "调用真实 Agent/LLM/RAG 诊断报告接口" },
+  assistant: { title: "智能报告", subtitle: "调用诊断助手接口，解释识别依据、证据来源和不确定性" },
   settings: { title: "系统状态", subtitle: "检查主后端、模型路线、WebSocket 和安全边界" }
 };
 
@@ -66,23 +69,25 @@ export function AppShell({ activePage, setActivePage, children }: AppShellProps)
         </div>
 
         <nav className="mt-5 max-h-[calc(100vh-230px)] space-y-1.5 overflow-auto pr-1">
-          {navItems.map((item) => {
+          {[...navItems, ...advancedNavItems].map((item, index) => {
             const Icon = item.icon;
             const active = activePage === item.key;
             return (
-              <button
-                key={item.key}
-                onClick={() => setActivePage(item.key)}
-                className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
-                  active ? "border-teal-300/30 bg-teal-300/10 text-teal-50" : "border-transparent text-slate-400 hover:bg-white/[0.04] hover:text-slate-100"
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium">{item.label}</span>
-                  <span className="mt-0.5 block text-xs text-slate-500">{item.description}</span>
-                </span>
-              </button>
+              <div key={item.key}>
+                {index === navItems.length && <div className="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">高级功能</div>}
+                <button
+                  onClick={() => setActivePage(item.key)}
+                  className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
+                    active ? "border-teal-300/30 bg-teal-300/10 text-teal-50" : "border-transparent text-slate-400 hover:bg-white/[0.04] hover:text-slate-100"
+                  } ${index >= navItems.length ? "py-2.5 opacity-80" : ""}`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">{item.label}</span>
+                    <span className="mt-0.5 block text-xs text-slate-500">{item.description}</span>
+                  </span>
+                </button>
+              </div>
             );
           })}
         </nav>
@@ -110,8 +115,8 @@ export function AppShell({ activePage, setActivePage, children }: AppShellProps)
               <h2 className="mt-1 text-xl font-semibold text-white">{current.title}</h2>
             </div>
             <div className="flex items-center gap-3">
-              <StatusPill label={status.backend} tone={status.backend === "后端正常" ? "green" : "red"} dot />
-              <StatusPill label={status.model} tone={status.model.includes("fallback") ? "amber" : "cyan"} dot />
+              <StatusPill label={status.backend} tone={status.backend === "后端正常" ? "green" : status.backend.includes("演示") ? "amber" : "slate"} dot />
+              <StatusPill label={status.model} tone={status.model.includes("演示") ? "amber" : "cyan"} dot />
               <button onClick={() => setActivePage("suqian")} className="primary-button">
                 <PlayCircle className="h-4 w-4" />
                 开始巡检
@@ -123,6 +128,7 @@ export function AppShell({ activePage, setActivePage, children }: AppShellProps)
             <StatusPill label={`任务 WS：${status.ws.tasks}`} tone={status.ws.tasks === "已连接" ? "green" : "slate"} dot />
             <StatusPill label={`预警 WS：${status.ws.alerts}`} tone={status.ws.alerts === "已连接" ? "green" : "slate"} dot />
             <StatusPill label={`API：${api.apiOrigin}`} tone="slate" />
+            <StatusPill label={`模式：${api.frontendMode === "demo" ? "演示兜底" : "真实接口优先"}`} tone="amber" />
           </div>
         </header>
         {children}
@@ -142,12 +148,12 @@ function useSystemStatus() {
       .then(([, modelStatus]) => {
         if (!mounted) return;
         setBackend("后端正常");
-        setModel(modelStatus.fallback_to_mock ? "模型 fallback" : modelStatus.detector_mode);
+        setModel(modelStatus.fallback_to_mock ? "模型演示兜底" : modelStatus.detector_mode);
       })
       .catch(() => {
         if (!mounted) return;
-        setBackend("后端异常");
-        setModel("模型未知");
+        setBackend("后端未连接");
+        setModel("演示兜底可用");
       });
     return () => {
       mounted = false;
@@ -163,7 +169,7 @@ function useSystemStatus() {
 
     sockets.forEach(([key, socket]) => {
       socket.onopen = () => setWs((current) => ({ ...current, [key]: "已连接" }));
-      socket.onerror = () => setWs((current) => ({ ...current, [key]: "异常" }));
+      socket.onerror = () => setWs((current) => ({ ...current, [key]: "未连接" }));
       socket.onclose = () => setWs((current) => ({ ...current, [key]: current[key] === "已连接" ? "已断开" : current[key] }));
     });
 

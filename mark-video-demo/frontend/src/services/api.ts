@@ -21,29 +21,46 @@ import type {
   SystemStatusResponse
 } from "../types/api";
 
-const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
+const DEFAULT_API_ORIGIN = "";
+const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_ORIGIN).replace(/\/$/, "");
 const API_PREFIX = "/api";
 
+function runtimeOrigin() {
+  if (API_ORIGIN) return API_ORIGIN;
+  if (typeof window !== "undefined") return window.location.origin;
+  return "http://localhost";
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_ORIGIN}${path}`, {
-    headers: { "Content-Type": "application/json", ...init?.headers },
-    ...init
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_ORIGIN}${path}`, {
+      headers: { "Content-Type": "application/json", ...init?.headers },
+      ...init
+    });
+  } catch (exc) {
+    throw new Error(buildNetworkError(path, exc));
+  }
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`主后端接口 ${path} 返回 ${response.status}: ${detail || "无错误详情"}`);
+    throw new Error(buildHttpError("主后端接口", path, response.status, detail));
   }
   return response.json() as Promise<T>;
 }
 
 async function requestForm<T>(path: string, body: FormData): Promise<T> {
-  const response = await fetch(`${API_ORIGIN}${path}`, {
-    method: "POST",
-    body
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_ORIGIN}${path}`, {
+      method: "POST",
+      body
+    });
+  } catch (exc) {
+    throw new Error(buildNetworkError(path, exc));
+  }
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`主后端上传接口 ${path} 返回 ${response.status}: ${detail || "无错误详情"}`);
+    throw new Error(buildHttpError("主后端上传接口", path, response.status, detail));
   }
   return response.json() as Promise<T>;
 }
@@ -54,6 +71,15 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
 
 function endpoint(path: string) {
   return `${API_PREFIX}${path}`;
+}
+
+function buildNetworkError(path: string, exc: unknown) {
+  const reason = exc instanceof Error ? exc.message : "网络不可达";
+  return `后端未连接或接口暂不可用：${path}。当前 API 为 ${API_ORIGIN}，页面会优先保留可用数据；请启动主后端或检查 VITE_API_BASE_URL。技术信息：${reason}`;
+}
+
+function buildHttpError(label: string, path: string, status: number, detail: string) {
+  return `${label} ${path} 返回 ${status}。请确认后端接口已准备好；演示现场可继续使用已加载数据或示范流程。${detail ? `详情：${detail}` : ""}`;
 }
 
 function assetUrl(path?: string | null) {
@@ -148,8 +174,9 @@ export function mapDetectionResult(item: BackendDetectionResult): DetectionRecor
 
 export const api = {
   apiOrigin: API_ORIGIN,
+  frontendMode: import.meta.env.VITE_FRONTEND_MODE ?? "real-first",
   wsUrl: (path: "/ws/results" | "/ws/tasks" | "/ws/alerts") => {
-    const url = new URL(API_ORIGIN);
+    const url = new URL(runtimeOrigin());
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
     url.pathname = path;
     url.search = "";

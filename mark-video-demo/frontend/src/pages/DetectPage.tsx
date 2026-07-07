@@ -5,6 +5,7 @@ import { DetectionCanvas } from "../components/DetectionCanvas";
 import { StatusPill } from "../components/StatusPill";
 import { EmptyState, ErrorNotice, InfoRow, PagePanel } from "../components/ui";
 import { api } from "../services/api";
+import { createDemoRiceLeafImageFile } from "../services/demoFallback";
 import type { DetectionRecord } from "../types/api";
 
 const sourceOptions = [
@@ -65,6 +66,28 @@ export function DetectPage() {
     }
   }
 
+  async function useDemoImageAndDetect() {
+    setLoading(true);
+    setError(null);
+    setRecord(null);
+    try {
+      const demoFile = await createDemoRiceLeafImageFile("rice-disease-demo-upload.png");
+      setFile(demoFile);
+      const result = await api.detectImage(demoFile, {
+        source_type: source.source_type,
+        model_hint: source.model_hint,
+        target_type: source.target_type,
+        plot_name: "示范图片检测",
+        region_name: source.label
+      });
+      setRecord(result);
+    } catch (exc) {
+      setError(exc instanceof Error ? exc.message : "示范图片检测失败，请确认主后端是否已启动。");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="grid grid-cols-[320px_minmax(0,1fr)_360px] gap-5">
       <PagePanel title="检测输入" description="已改为真实上传识别，不再请求旧 demo samples 接口。" status={<ScanLine className="h-5 w-5 text-cyan-300" />}>
@@ -114,6 +137,10 @@ export function DetectPage() {
         <button onClick={runDetection} disabled={loading || !file} className="primary-button mt-5 w-full disabled:opacity-50">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           开始分析
+        </button>
+        <button onClick={() => void useDemoImageAndDetect()} disabled={loading} className="secondary-button mt-3 w-full disabled:opacity-50">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageUp className="h-4 w-4" />}
+          使用示范图片检测
         </button>
         {error && (
           <div className="mt-4">
@@ -165,15 +192,15 @@ export function DetectPage() {
 
             <InfoRow label="模型名称" value={record.model.name} />
             <InfoRow label="模型阶段" value={record.model_stage} />
-            <InfoRow label="Detector mode" value={record.detector_mode} />
-            <InfoRow label="Mock fallback" value={record.fallback_to_mock ? "是" : "否"} />
+            <InfoRow label="模型运行模式" value={record.detector_mode} />
+            <InfoRow label="演示兜底数据" value={record.fallback_to_mock ? "是" : "否"} />
             <InfoRow label="正式指标" value={record.formal_metric_available ? "可用" : "未提供正式指标"} />
 
             <InfoBlock label="诊断建议" title={record.analysis.title} text={record.analysis.text} />
             <InfoBlock label="安全边界" title="辅助参考" text={record.analysis.prevention ?? "建议结合田间复查结果进行分区处理，具体防治方案需由农技人员确认。"} />
           </div>
         ) : (
-          <EmptyState description="完成真实上传识别后，这里会展示模型阶段、mock fallback、风险等级和辅助建议。" />
+          <EmptyState description="完成真实上传或示范图片识别后，这里会展示模型阶段、演示兜底标识、风险等级和辅助建议。" />
         )}
       </PagePanel>
     </div>

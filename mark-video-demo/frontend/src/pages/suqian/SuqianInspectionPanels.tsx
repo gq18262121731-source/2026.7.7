@@ -121,7 +121,7 @@ export function InspectionOverviewPanel({
   const next = getNextAction(field, task, dryRun, regions, followup, report);
 
   const action = (() => {
-    if (!field) return <ActionButton label="创建田块" loading={loadingStep === "field"} onClick={onEnsureField} />;
+    if (!field) return <ActionButton label="加载示范田块" loading={loadingStep === "field"} onClick={onEnsureField} />;
     if (!task) return <ActionButton label="创建 UAV 任务" loading={loadingStep === "task"} onClick={onCreateTask} />;
     if (!dryRun) return <ActionButton label="执行指数分析" loading={loadingStep === "dry-run"} onClick={onRunDryRun} />;
     if (regions.length > 0 && !followup) return <ActionButton label="进入手机复查" loading={loadingStep === "followup"} onClick={() => onSelectTab("followup")} />;
@@ -151,7 +151,7 @@ export function InspectionOverviewPanel({
             <div className="space-y-2 text-sm text-slate-300">
               <div>指数结果：{dryRun.indices.length} 个</div>
               <div>异常区域：{regions.length} 个</div>
-              <div>数据模式：{dryRun.data_mode}</div>
+              <div>数据模式：演示分析</div>
             </div>
           ) : (
             <EmptyState description="执行 dry-run 后显示异常摘要。" />
@@ -216,7 +216,7 @@ export function PhoneFollowupPanel({
         status={<StatusBadge status={followup ? "stable" : "preview"} label={followup ? "已完成复查" : "待复查"} />}
         action={
           <ActionButton
-            label="模拟上传复查图"
+            label="使用示范复查图"
             loading={loadingStep === "followup"}
             disabled={!selectedRegion || !field || !task}
             onClick={onRunPhoneFollowup}
@@ -236,6 +236,10 @@ export function PhoneFollowupPanel({
             </div>
           ))}
         </div>
+
+        <p className="mt-4 rounded-lg border border-amber-300/25 bg-amber-300/10 p-3 text-sm leading-6 text-amber-50/85">
+          当前演示使用内置样例图完成复查；真实移动端接入后，由手机端上传近景图片并回写到当前异常区域。
+        </p>
 
         <div className="mt-5 grid gap-4 xl:grid-cols-2">
           <DetailBlock title="复查绑定">
@@ -316,8 +320,8 @@ function getNextAction(
   followup: DetectionResult | null,
   report: InspectionReport | null
 ) {
-  if (!field) return "还没有确认巡检田块，请先创建或加载示范田块。";
-  if (!task) return "田块已就绪，下一步创建本次 UAV dry-run 巡检任务。";
+  if (!field) return "还没有确认巡检田块，请先加载示范田块，开始本次演示流程。";
+  if (!task) return "田块已就绪，下一步创建本次 UAV 巡检任务。";
   if (!dryRun) return "UAV 任务已创建，下一步执行 NDVI / NDRE 指数分析，发现需要复查的异常区域。";
   if (regions.length > 0 && !followup) return "已发现异常区域，请选择一个区域进入手机近景复查，形成多源协同证据。";
   if (!report) return "已有巡检证据，下一步可生成实验性巡检报告，完成闭环归档。";
@@ -384,14 +388,14 @@ export function FieldTaskPanel({ field, task, loadingStep, onEnsureField, onCrea
   return (
     <PagePanel
       title="巡检对象"
-      description="先确认田块，再创建本次 UAV dry-run 巡检任务。"
+      description="先确认田块，再创建本次 UAV 巡检任务。"
       status={<StatusBadge status={field ? "stable" : "preview"} label={field ? "田块已就绪" : "待建档"} />}
     >
       <div className="grid gap-4 xl:grid-cols-2">
         <OperationBlock
           title="田块信息"
           icon={<MapPin className="h-5 w-5" />}
-          actionLabel={field ? "刷新田块" : "创建田块"}
+          actionLabel={field ? "刷新田块" : "加载示范田块"}
           loading={loadingStep === "field"}
           onAction={onEnsureField}
         >
@@ -403,7 +407,7 @@ export function FieldTaskPanel({ field, task, loadingStep, onEnsureField, onCrea
         </OperationBlock>
 
         <OperationBlock
-          title="UAV dry-run 任务"
+          title="UAV 巡检任务"
           icon={<Plane className="h-5 w-5" />}
           actionLabel={task ? "重新创建任务" : "创建任务"}
           loading={loadingStep === "task"}
@@ -436,17 +440,17 @@ export function IndexAndRegionPanel({ dryRun, regions, selectedRegion, loadingSt
     <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
       <PagePanel
         title="多光谱异常发现"
-        description="执行 dry-run 后展示 NDVI / NDRE 占位指数与异常面积占比。"
+        description="执行演示分析后展示 NDVI / NDRE 占位指数与异常面积占比。"
         status={<StatusBadge status={dryRun?.data_mode ?? "preview"} label={dryRun?.data_mode ?? "待执行"} />}
         action={
-          <ActionButton label={dryRun ? "重新执行 dry-run" : "执行 dry-run"} loading={loadingStep === "dry-run"} disabled={disabled} onClick={onRunDryRun} />
+          <ActionButton label={dryRun ? "重新执行指数分析" : "执行指数分析"} loading={loadingStep === "dry-run"} disabled={disabled} onClick={onRunDryRun} />
         }
       >
         <div className="grid gap-3 xl:grid-cols-2">
           {(dryRun?.indices ?? []).map((item) => (
             <IndexPanel key={item.index_result_id} item={item} />
           ))}
-          {!dryRun && <EmptyState description="创建 UAV 任务后执行 dry-run，这里会出现指数图、阈值和异常面积占比。" />}
+          {!dryRun && <EmptyState description="创建 UAV 任务后执行指数分析，这里会出现指数图、阈值和异常面积占比。" />}
         </div>
         {dryRun?.mock_safety_note && <p className="mt-3 text-xs leading-5 text-amber-100/80">{dryRun.mock_safety_note}</p>}
       </PagePanel>
@@ -494,7 +498,7 @@ export function FollowupAndReportPanel({
         status={<StatusPill label={followup ? "已回写" : "待复查"} tone={followup ? "green" : "amber"} />}
         action={
           <ActionButton
-            label="模拟上传复查图"
+            label="使用示范复查图"
             loading={loadingStep === "followup"}
             disabled={!selectedRegion || !field || !task}
             onClick={onRunPhoneFollowup}
