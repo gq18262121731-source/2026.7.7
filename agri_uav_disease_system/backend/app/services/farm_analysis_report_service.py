@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from app.core.config import settings
 from app.schemas.detection_result import DetectionResult
 from app.schemas.farm_analysis_report import FarmAnalysisReportMetadata, FarmAnalysisReportRequest, FarmAnalysisReportResponse
 from app.services.agent_service import agent_service
@@ -12,8 +13,8 @@ from app.services.knowledge_service import KnowledgeNotFoundError, knowledge_ser
 from app.services.report_chart_service import report_chart_service
 from app.services.report_pdf_service import report_pdf_service
 from app.services.report_storage_service import report_storage_service
+from app.services.report_weather_service import report_weather_service
 from app.services.storage.result_store import result_store
-from app.services.weather.weather_service import weather_service
 
 
 class FarmAnalysisReportService:
@@ -22,16 +23,20 @@ class FarmAnalysisReportService:
         report_id = f"farm_report_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
         record = self._select_record(request)
         history_records = self._history_records(request, record)
-        weather = self._weather_snapshot(request, record)
+        plot_id = record.plot_id if record and record.plot_id else (None if request.plot_id == "all" else request.plot_id)
+        weather = report_weather_service.snapshot(request.include_weather, plot_id, record)
         rag_chunks = self._rag_chunks(record)
         llm_result = self._llm_result(record, request)
         charts = report_chart_service.build(record, history_records)
-        charts["evidence_source_chart"] = report_chart_service.evidence_sources(
-            record,
-            history_records,
-            weather_available=bool(weather.get("available")),
-            rag_count=len(rag_chunks),
-            llm_mode=str(llm_result.get("llm_mode") or "fallback"),
+        charts = report_chart_service.attach_evidence(
+            charts,
+            report_chart_service.evidence_sources(
+                record,
+                history_records,
+                weather_available=bool(weather.get("available")),
+                rag_count=len(rag_chunks),
+                llm_mode=str(llm_result.get("llm_mode") or "fallback"),
+            ),
         )
 
         data = self._report_data(
@@ -50,6 +55,9 @@ class FarmAnalysisReportService:
         report_pdf_service.render_html(data, html_path)
         pdf_fallback_used = report_pdf_service.generate_pdf(html_path, pdf_path, data)
         data["pdf_fallback_used"] = pdf_fallback_used
+        data["pdf_quality"] = "fallback" if pdf_fallback_used else "official"
+        data["pdf_display_warning"] = "PDF 生成使用兜底模板，非正式展示版。" if pdf_fallback_used else ""
+        data["pdf_quality_note"] = data["pdf_display_warning"] or None
         report_pdf_service.render_html(data, html_path)
 
         metadata = FarmAnalysisReportMetadata(
@@ -75,6 +83,9 @@ class FarmAnalysisReportService:
             weather_available=bool(weather.get("available")),
             rag_available=bool(rag_chunks),
             pdf_fallback_used=pdf_fallback_used,
+            pdf_quality=data["pdf_quality"],
+            pdf_display_warning=data["pdf_display_warning"],
+            pdf_quality_note=data["pdf_quality_note"],
             created_at=created_at,
         )
         report_storage_service.save(metadata)
@@ -88,6 +99,9 @@ class FarmAnalysisReportService:
             weather_available=metadata.weather_available,
             rag_available=metadata.rag_available,
             pdf_fallback_used=metadata.pdf_fallback_used,
+            pdf_quality=metadata.pdf_quality,
+            pdf_display_warning=metadata.pdf_display_warning,
+            pdf_quality_note=metadata.pdf_quality_note,
             created_at=created_at,
         )
 
@@ -103,32 +117,6 @@ class FarmAnalysisReportService:
             plot_id = record.plot_id
         start = (datetime.now(timezone.utc) - timedelta(days=request.include_history_days)).isoformat()
         return result_store.list_records(plot_id=plot_id, start_time=start, page=1, page_size=100, sort="timestamp_desc")
-
-    def _weather_snapshot(self, request: FarmAnalysisReportRequest, record: DetectionResult | None) -> dict[str, Any]:
-        if not request.include_weather:
-            return {"available": False, "message": "未启用天气快照", "source": "local_weather_observations"}
-        plot_id = record.plot_id if record and record.plot_id else (None if request.plot_id == "all" else request.plot_id)
-        try:
-            observations = weather_service.list_observations(plot_id=plot_id, limit=1)
-        except Exception as exc:
-            return {"available": False, "message": "天气数据暂不可用，不影响本次检测记录分析。", "source": "local_weather_observations", "error": type(exc).__name__}
-        if not observations:
-            return {"available": False, "message": "天气数据暂不可用，不影响本次检测记录分析。", "source": "local_weather_observations"}
-        latest = observations[0]
-        avg_temp = self._avg(latest.temperature_max, latest.temperature_min)
-        return {
-            "available": True,
-            "city": "宿迁市",
-            "district": latest.region_name or (record.region_name if record else ""),
-            "temperature": f"{avg_temp:.1f} C" if avg_temp is not None else "暂无",
-            "humidity": f"{latest.humidity_avg:.0f}%" if latest.humidity_avg is not None else "暂无",
-            "weather": latest.weather_text or "暂无",
-            "wind_direction": "暂无",
-            "wind_power": f"{latest.wind_speed:.1f} m/s" if latest.wind_speed is not None else "暂无",
-            "rainfall_mm": latest.rainfall_mm,
-            "report_time": latest.observed_date,
-            "source": latest.data_source,
-        }
 
     def _rag_chunks(self, record: DetectionResult | None) -> list[dict[str, Any]]:
         if not record:
@@ -185,15 +173,6 @@ class FarmAnalysisReportService:
     ) -> dict[str, Any]:
         plot_id = record.plot_id if record and record.plot_id else request.plot_id
         plot_name = record.plot_name if record and record.plot_name else plot_id
-        detection_rows = [
-            {
-                "label": item.label,
-                "confidence": item.confidence,
-                "severity": record.summary.severity if record else "",
-                "risk_level": record.summary.risk_level if record else "",
-            }
-            for item in (record.detections if record else [])
-        ]
         attention = llm_result.get("risk_level") or (record.summary.risk_level if record else "unknown")
         summary = str(
             llm_result.get("answer")
@@ -208,14 +187,10 @@ class FarmAnalysisReportService:
         if not weather.get("available"):
             uncertainty.append("天气数据暂不可用，天气因素未作为本次报告主要依据。")
         uncertainty.append("本报告为辅助分析结果，不作为最终农事处置依据。")
-        summary_cards = [
-            {"label": "关注等级", "value": str(attention), "note": "来自 LLM/检测风险"},
-            {"label": "主要异常", "value": record.summary.main_disease if record else "暂无记录", "note": "来自检测记录"},
-            {"label": "最高置信度", "value": f"{record.summary.max_confidence:.0%}" if record else "暂无", "note": "来自 YOLO 输出"},
-            {"label": "历史样本", "value": str(len(history_records)), "note": f"近 {request.include_history_days} 天"},
-            {"label": "知识片段", "value": str(len(rag_chunks)), "note": "来自本地 RAG"},
-            {"label": "报告边界", "value": "辅助分析", "note": "需要人工复核"},
-        ]
+        detection_rows = self._detection_rows(record)
+        record_info_rows = self._record_info_rows(record, request)
+        model_info_rows = self._model_info_rows(record)
+        generation_params = self._generation_params(request)
         return {
             "title": "水稻农情分析报告",
             "report_id": report_id,
@@ -227,11 +202,30 @@ class FarmAnalysisReportService:
             "plot_name": plot_name,
             "attention_level": attention,
             "summary": summary,
-            "summary_cards": summary_cards,
+            "summary_cards": [
+                {"label": "关注等级", "value": str(attention), "note": "来自 LLM/检测风险"},
+                {"label": "主要异常", "value": record.summary.main_disease if record else "暂无记录", "note": "来自检测记录"},
+                {"label": "最高置信度", "value": f"{record.summary.max_confidence:.0%}" if record else "暂无", "note": "来自检测框"},
+                {"label": "历史样本", "value": str(len(history_records)), "note": f"近 {request.include_history_days} 天"},
+                {"label": "知识片段", "value": str(len(rag_chunks)), "note": "来自本地 RAG"},
+                {"label": "报告边界", "value": "辅助分析", "note": "需要人工复核"},
+            ],
+            "image_thumbnail_url": self._thumbnail_url(record),
+            "image_thumbnail_note": "优先展示结果图；缺少结果图时展示原图。",
             "weather": weather,
             "weather_cards": self._weather_cards(weather),
             "weather_analysis": self._weather_analysis(weather),
             "detection_rows": detection_rows,
+            "record_info_rows": record_info_rows,
+            "model_info_rows": model_info_rows,
+            "generation_params": generation_params,
+            "data_snapshot_rows": [
+                {"label": "检测记录快照", "value": "已保存" if record else "缺少记录"},
+                {"label": "天气快照", "value": weather.get("source", "unavailable")},
+                {"label": "历史记录快照", "value": f"{len(history_records)} 条"},
+                {"label": "RAG 快照", "value": f"{len(rag_chunks)} 条"},
+                {"label": "LLM 结果快照", "value": str(llm_result.get("llm_mode") or "fallback")},
+            ],
             "history_rows": charts.get("history_rows", []),
             "history_sufficient": charts.get("history_sufficient", False),
             "history_analysis": self._history_analysis(history_records),
@@ -239,6 +233,7 @@ class FarmAnalysisReportService:
             "attention_cards": charts.get("attention_cards", []),
             "confidence_chart": charts.get("confidence_chart", []),
             "evidence_sources": charts.get("evidence_source_chart", []),
+            "svg_charts": charts.get("svg_charts", {}),
             "insufficient_history_message": charts.get("insufficient_history_message"),
             "rag_chunks": [
                 {
@@ -258,16 +253,69 @@ class FarmAnalysisReportService:
             "llm_mode": llm_result.get("llm_mode", "fallback"),
             "fallback_used": bool(llm_result.get("fallback_used")),
             "pdf_fallback_used": False,
+            "pdf_quality": "official",
+            "pdf_display_warning": "",
+            "pdf_quality_note": None,
         }
+
+    def _detection_rows(self, record: DetectionResult | None) -> list[dict[str, Any]]:
+        if not record:
+            return []
+        return [
+            {
+                "label": item.label,
+                "confidence": item.confidence,
+                "severity": record.summary.severity,
+                "risk_level": record.summary.risk_level,
+                "bbox": ", ".join(str(value) for value in item.bbox),
+            }
+            for item in record.detections
+        ]
+
+    def _record_info_rows(self, record: DetectionResult | None, request: FarmAnalysisReportRequest) -> list[dict[str, Any]]:
+        if not record:
+            return [
+                {"label": "记录 ID", "value": request.record_id or "未指定"},
+                {"label": "地块", "value": request.plot_id},
+                {"label": "状态", "value": "缺少检测记录"},
+            ]
+        return [
+            {"label": "记录 ID", "value": record.record_id},
+            {"label": "地块", "value": record.plot_name or record.plot_id or "未返回"},
+            {"label": "区域", "value": record.region_name},
+            {"label": "来源", "value": record.source_type},
+            {"label": "检测时间", "value": record.timestamp},
+            {"label": "图片尺寸", "value": f"{record.image_width} x {record.image_height}"},
+        ]
+
+    def _model_info_rows(self, record: DetectionResult | None) -> list[dict[str, Any]]:
+        if not record:
+            return [{"label": "模型状态", "value": "未调用模型"}]
+        return [
+            {"label": "模型名称", "value": record.model_name},
+            {"label": "模型版本", "value": record.model_version},
+            {"label": "检测模式", "value": record.detector_mode},
+            {"label": "模型阶段", "value": record.model_stage},
+            {"label": "mock fallback", "value": "是" if record.fallback_to_mock else "否"},
+            {"label": "正式指标", "value": "可用" if record.formal_metric_available else "未提供"},
+        ]
+
+    def _generation_params(self, request: FarmAnalysisReportRequest) -> list[dict[str, Any]]:
+        return [
+            {"label": "report_type", "value": request.report_type},
+            {"label": "crop", "value": request.crop},
+            {"label": "include_weather", "value": str(request.include_weather)},
+            {"label": "include_history_days", "value": str(request.include_history_days)},
+        ]
 
     def _weather_cards(self, weather: dict[str, Any]) -> list[dict[str, str]]:
         return [
             {"label": "温度", "value": str(weather.get("temperature") or "暂无")},
             {"label": "湿度", "value": str(weather.get("humidity") or "暂无")},
             {"label": "天气", "value": str(weather.get("weather") or weather.get("message") or "暂无")},
+            {"label": "风向", "value": str(weather.get("wind_direction") or "暂无")},
             {"label": "风力", "value": str(weather.get("wind_power") or "暂无")},
-            {"label": "更新时间", "value": str(weather.get("report_time") or "暂无")},
-            {"label": "数据来源", "value": str(weather.get("source") or "local_weather_observations")},
+            {"label": "数据来源", "value": str(weather.get("provider_name") or weather.get("source") or "暂不可用")},
         ]
 
     def _fallback_llm_result(self, message: str, plot_id: str, report_type: str) -> dict[str, Any]:
@@ -305,7 +353,7 @@ class FarmAnalysisReportService:
 
     def _weather_analysis(self, weather: dict[str, Any]) -> str:
         if not weather.get("available"):
-            return "天气数据暂不可用，本报告不将天气因素作为主要判断依据。"
+            return "天气数据暂不可用，不影响本次检测记录分析。"
         factors = []
         humidity = str(weather.get("humidity") or "")
         if humidity and humidity != "暂无":
@@ -316,14 +364,26 @@ class FarmAnalysisReportService:
             factors.append(f"天气现象 {weather['weather']}")
         return "，".join(factors) + "。天气因素仅作为环境背景，不单独确认病虫害。"
 
+    def _thumbnail_url(self, record: DetectionResult | None) -> str:
+        if not record:
+            return ""
+        return self._static_url_to_file_uri(record.result_image_url) or self._static_url_to_file_uri(record.image_url) or record.result_image_url or record.image_url
+
+    def _static_url_to_file_uri(self, value: str | None) -> str:
+        if not value:
+            return ""
+        if value.startswith("http://") or value.startswith("https://") or value.startswith("file://"):
+            return value
+        if value.startswith("/static/"):
+            candidate = settings.static_dir / value.removeprefix("/static/")
+            if candidate.exists():
+                return Path(candidate).resolve().as_uri()
+        return value
+
     def _is_abnormal(self, record: DetectionResult) -> bool:
         risk = (record.summary.risk_level or "").lower()
         severity = record.summary.severity or ""
         return risk in {"medium", "high", "critical"} or severity not in {"无病", "normal", "none", ""}
-
-    def _avg(self, a: float | None, b: float | None) -> float | None:
-        values = [item for item in (a, b) if item is not None]
-        return sum(values) / len(values) if values else None
 
     def _unique(self, items: list[Any]) -> list[str]:
         seen: set[str] = set()

@@ -510,3 +510,36 @@ If Chromium is not installed or Playwright PDF rendering fails, the system still
 ```
 
 The fallback PDF is only for basic download continuity. It should not be used as the formal defense display report.
+
+Farm analysis weather snapshots use this priority order:
+
+```text
+QWeather first
+-> Amap weather fallback
+-> local weather observation fallback
+-> weather unavailable
+```
+
+To enable the first-priority weather service, configure:
+
+```text
+QWEATHER_API_KEY
+QWEATHER_API_HOST
+```
+
+The backend also accepts frontend-compatible names:
+
+```text
+VITE_QWEATHER_API_KEY
+VITE_QWEATHER_API_HOST
+```
+
+To enable the second-priority fallback weather service, configure one of:
+
+```text
+AMAP_WEATHER_KEY
+GAODE_WEATHER_KEY
+AMAP_WEB_SERVICE_KEY
+```
+
+If neither third-party weather provider is configured or available, the report reads the latest local weather observation. If that is also unavailable, the report records `source=unavailable` with the message `天气数据暂不可用，不影响本次检测记录分析。`

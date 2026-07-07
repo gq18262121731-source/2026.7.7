@@ -21,7 +21,7 @@ Date: 2026-07-08
 1. Formal PDF generation succeeded: yes.
 2. Current report still uses fallback: no, `pdf_quality=official` and `pdf_fallback_used=false`.
 3. Chromium installed: yes, `python -m playwright install chromium` completed successfully.
-4. Amap weather returned real data: no. The current environment has no Amap Web Service key configured.
+4. Third-party live weather returned real data: no. The current environment has no QWeather key/host and no Amap Web Service key configured.
 5. Weather fallback works: yes. Weather failure returned `source=unavailable` and did not block report generation.
 6. SVG charts display: yes. Generated HTML contains inline `<svg>` charts.
 7. Detection image thumbnail displays: yes. Generated HTML contains the thumbnail image block.
@@ -33,4 +33,6 @@ Date: 2026-07-08
 
 - The formal PDF path is active only when Playwright can launch Chromium.
 - If Chromium is missing later, the API returns `pdf_quality=fallback` and `pdf_quality_note="PDF 生成使用兜底模板，非正式展示版。"`.
-- For real Amap weather, configure one of: `AMAP_WEATHER_KEY`, `GAODE_WEATHER_KEY`, or `AMAP_WEB_SERVICE_KEY`.
+- Weather priority is QWeather first, Amap weather fallback, local weather observation fallback, then weather unavailable.
+- To enable the first-priority weather service, configure `QWEATHER_API_KEY` / `QWEATHER_API_HOST` or `VITE_QWEATHER_API_KEY` / `VITE_QWEATHER_API_HOST`.
+- To enable the second-priority fallback weather service, configure one of: `AMAP_WEATHER_KEY`, `GAODE_WEATHER_KEY`, or `AMAP_WEB_SERVICE_KEY`.
